@@ -2972,11 +2972,25 @@ int main(int, char**)
 
             ImGui::Separator();
 
+            static char theme_filter[64] = "";
+            ImGui::SetNextItemWidth(-1);
+            ImGui::InputTextWithHint("##filter", "Filter colors...", theme_filter, sizeof(theme_filter));
+
             ImGui::BeginChild("colors", ImVec2(0, 0), false);
             ImGuiStyle& style = ImGui::GetStyle();
             for (int i = 0; i < ImGuiCol_COUNT; i++)
             {
-                ImGui::ColorEdit4(format_color_name(ImGui::GetStyleColorName((ImGuiCol)i)).c_str(),
+                std::string label = format_color_name(ImGui::GetStyleColorName((ImGuiCol)i));
+                if (theme_filter[0])
+                {
+                    std::string lower = label;
+                    for (auto& c : lower) c = tolower(c);
+                    std::string filter_lower = theme_filter;
+                    for (auto& c : filter_lower) c = tolower(c);
+                    if (lower.find(filter_lower) == std::string::npos)
+                        continue;
+                }
+                ImGui::ColorEdit4(label.c_str(),
                     (float*)&style.Colors[i],
                     ImGuiColorEditFlags_NoInputs);
             }
