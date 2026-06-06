@@ -156,9 +156,9 @@ static void set_default_colors()
     style.Colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
 }
 
-static void write_theme_ini()
+static void write_theme_to_file(const std::string& path)
 {
-    FILE* f = fopen((exe_dir() + "/scriptorioc_theme.ini").c_str(), "w");
+    FILE* f = fopen(path.c_str(), "w");
     if (!f) return;
     ImGuiStyle& style = ImGui::GetStyle();
     for (int i = 0; i < ImGuiCol_COUNT; i++)
@@ -170,9 +170,13 @@ static void write_theme_ini()
     fclose(f);
 }
 
-static void load_theme_ini()
+static void write_theme_ini()
 {
-    std::string path = exe_dir() + "/scriptorioc_theme.ini";
+    write_theme_to_file(exe_dir() + "/scriptorioc_theme.ini");
+}
+
+static void load_theme_from_file(const std::string& path)
+{
     FILE* f = fopen(path.c_str(), "r");
     if (!f) return;
 
@@ -196,6 +200,11 @@ static void load_theme_ini()
         }
     }
     fclose(f);
+}
+
+static void load_theme_ini()
+{
+    load_theme_from_file(exe_dir() + "/scriptorioc_theme.ini");
 }
 
 static std::string format_color_name(const char* name)
@@ -2968,6 +2977,22 @@ int main(int, char**)
                 set_default_colors();
                 load_theme_ini();
                 show_theme_editor = false;
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Export"))
+            {
+                static const char* theme_filters[] = {"*.ini"};
+                const char* fp = tinyfd_saveFileDialog("Export Theme", "theme.ini", 1, theme_filters, "INI files");
+                if (fp)
+                    write_theme_to_file(fp);
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Import"))
+            {
+                static const char* theme_filters[] = {"*.ini"};
+                const char* fp = tinyfd_openFileDialog("Import Theme", "", 1, theme_filters, "INI files", 0);
+                if (fp)
+                    load_theme_from_file(fp);
             }
 
             ImGui::Separator();
