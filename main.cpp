@@ -198,6 +198,18 @@ static void load_theme_ini()
     fclose(f);
 }
 
+static std::string format_color_name(const char* name)
+{
+    std::string result;
+    for (int i = 0; name[i]; i++)
+    {
+        if (i > 0 && name[i] >= 'A' && name[i] <= 'Z')
+            result += ' ';
+        result += name[i];
+    }
+    return result;
+}
+
 
 std::vector<DataEntry> load_data_file(const std::string& path, std::vector<StudyNode>* studies)
 {
@@ -1336,6 +1348,7 @@ int main(int, char**)
     static bool show_bookmarks_dialog = false;
     static bool show_history_dialog = false;
     static bool show_special_search_dialog = false;
+    static bool show_theme_editor = false;
     static char search_buf[256] = "";
     static std::vector<SearchResult> search_results;
 
@@ -1889,6 +1902,10 @@ int main(int, char**)
                     g_data_path = exe_dir() + "/notes.scrp";
                     remove((exe_dir() + "/scriptorioc_state.ini").c_str());
                     reset_layout = true;
+                }
+                if (ImGui::MenuItem("Edit Colors"))
+                {
+                    show_theme_editor = true;
                 }
                 if (ImGui::MenuItem("Reset Colors"))
                 {
@@ -2930,6 +2947,41 @@ int main(int, char**)
                 ImGui::TextDisabled("Example:   r:blessed$");
                 ImGui::TextDisabled("Finds verses ending with \\\"blessed\\\".");
             }
+            ImGui::End();
+        }
+
+        if (show_theme_editor)
+        {
+            ImGui::SetNextWindowSize(ImVec2(460, 600), ImGuiCond_FirstUseEver);
+            ImGui::Begin("Theme Editor", &show_theme_editor);
+            if (ImGui::IsWindowFocused() && !ImGui::IsAnyItemActive() && ImGui::IsKeyPressed(ImGuiKey_Escape))
+                show_theme_editor = false;
+
+            if (ImGui::Button("Save"))
+            {
+                write_theme_ini();
+                show_theme_editor = false;
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Cancel"))
+            {
+                set_default_colors();
+                load_theme_ini();
+                show_theme_editor = false;
+            }
+
+            ImGui::Separator();
+
+            ImGui::BeginChild("colors", ImVec2(0, 0), false);
+            ImGuiStyle& style = ImGui::GetStyle();
+            for (int i = 0; i < ImGuiCol_COUNT; i++)
+            {
+                ImGui::ColorEdit4(format_color_name(ImGui::GetStyleColorName((ImGuiCol)i)).c_str(),
+                    (float*)&style.Colors[i],
+                    ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+            }
+            ImGui::EndChild();
+
             ImGui::End();
         }
 
