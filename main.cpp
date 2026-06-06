@@ -814,6 +814,35 @@ static bool parse_reference(const char* input, const std::vector<TestamentInfo>&
         if (count == 1) best_id = id;
     }
 
+    // Fallback: extract first alphabetic word and match as abbreviation (e.g. "exo 20:1")
+    if (best_id < 0)
+    {
+        size_t first_non_alpha = before_verse.find_first_of(" \t0123456789");
+        std::string abbr = before_verse.substr(0, first_non_alpha);
+        if (abbr.size() >= 2)
+        {
+            int count = 0, id = -1;
+            for (auto& t : data)
+                for (auto& b : t.books)
+                    if (b.name.size() >= abbr.size() && strncasecmp(b.name.c_str(), abbr.c_str(), abbr.size()) == 0)
+                    { count++; id = b.id; }
+            if (count == 1)
+            {
+                best_id = id;
+                std::string remaining = (first_non_alpha != std::string::npos) ? before_verse.substr(first_non_alpha) : "";
+                size_t ns = remaining.find_first_not_of(" \t");
+                remaining = (ns != std::string::npos) ? remaining.substr(ns) : "";
+                if (!remaining.empty())
+                {
+                    char* end = nullptr;
+                    int ch = strtol(remaining.c_str(), &end, 10);
+                    if (end != remaining.c_str() && *end == '\0')
+                        chapter = ch;
+                }
+            }
+        }
+    }
+
     if (best_id < 0) return false;
     out_book = best_id;
     out_chapter = chapter;
@@ -2408,6 +2437,52 @@ int main(int, char**)
                     ImVec2(-FLT_MIN, -FLT_MIN),
                     notes_flags | ImGuiInputTextFlags_CallbackAlways,
                     editor_callback, (void*)(intptr_t)0);
+
+                if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
+                {
+                    int cursor_pos = GImGui->InputTextState.GetCursorPos();
+                    int buflen = (int)strlen(note_edit_buf);
+                    if (cursor_pos >= 0 && cursor_pos <= buflen)
+                    {
+                        int start = -1;
+                        for (int i = cursor_pos; i >= 0; i--)
+                            if (i >= 1 && note_edit_buf[i] == '[' && note_edit_buf[i-1] == '[')
+                            { start = i - 1; break; }
+                        if (start >= 0)
+                        {
+                            int content = start + 2;
+                            int end = -1;
+                            for (int i = content; note_edit_buf[i]; i++)
+                                if (note_edit_buf[i] == ']' && note_edit_buf[i+1] == ']')
+                                { end = i; break; }
+                            if (end > content && cursor_pos > start && cursor_pos <= end + 1)
+                            {
+                                std::string link(note_edit_buf + content, end - content);
+                                if (!link.empty())
+                                {
+                                    int book, chapter, verse;
+                                    if (parse_reference(link.c_str(), tree_data, book, chapter, verse))
+                                    {
+                                        nav_book = book;
+                                        nav_chapter = chapter;
+                                        nav_verse = verse;
+                                        g_tree_inited = false;
+                                        g_scroll_to_verse = true;
+                                    }
+                                    else if (link.find("http://") == 0 || link.find("https://") == 0 || link.find("ftp://") == 0)
+                                    {
+#ifdef _WIN32
+                                        std::string cmd = "start \"\" \"" + link + "\"";
+#else
+                                        std::string cmd = "xdg-open \"" + link + "\"";
+#endif
+                                        system(cmd.c_str());
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
             ImGui::End();
         }
@@ -2757,6 +2832,53 @@ int main(int, char**)
                 ImVec2(-FLT_MIN, -FLT_MIN),
                 study_flags | ImGuiInputTextFlags_CallbackAlways,
                 editor_callback, (void*)(intptr_t)1);
+
+            if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
+            {
+                int cursor_pos = GImGui->InputTextState.GetCursorPos();
+                int buflen = (int)strlen(study_edit_buf);
+                if (cursor_pos >= 0 && cursor_pos <= buflen)
+                {
+                    int start = -1;
+                    for (int i = cursor_pos; i >= 0; i--)
+                        if (i >= 1 && study_edit_buf[i] == '[' && study_edit_buf[i-1] == '[')
+                        { start = i - 1; break; }
+                    if (start >= 0)
+                    {
+                        int content = start + 2;
+                        int end = -1;
+                        for (int i = content; study_edit_buf[i]; i++)
+                            if (study_edit_buf[i] == ']' && study_edit_buf[i+1] == ']')
+                            { end = i; break; }
+                        if (end > content && cursor_pos > start && cursor_pos <= end + 1)
+                        {
+                            std::string link(study_edit_buf + content, end - content);
+                            if (!link.empty())
+                            {
+                                const auto& study_tree_data = get_translation(def_translat);
+                                int book, chapter, verse;
+                                if (parse_reference(link.c_str(), study_tree_data, book, chapter, verse))
+                                {
+                                    nav_book = book;
+                                    nav_chapter = chapter;
+                                    nav_verse = verse;
+                                    g_tree_inited = false;
+                                    g_scroll_to_verse = true;
+                                }
+                                else if (link.find("http://") == 0 || link.find("https://") == 0 || link.find("ftp://") == 0)
+                                {
+#ifdef _WIN32
+                                    std::string cmd = "start \"\" \"" + link + "\"";
+#else
+                                    std::string cmd = "xdg-open \"" + link + "\"";
+#endif
+                                    system(cmd.c_str());
+                                }
+                            }
+                        }
+                    }
+                }
+            }
 
             ImGui::End();
         }
