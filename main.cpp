@@ -88,6 +88,128 @@ static std::string ensure_scrp_extension(const std::string& path)
     return path;
 }
 
+static void set_default_colors()
+{
+    ImGuiStyle& style = ImGui::GetStyle();
+    style.Colors[ImGuiCol_Text]                   = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+    style.Colors[ImGuiCol_TextDisabled]           = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
+    style.Colors[ImGuiCol_WindowBg]               = ImVec4(0.06f, 0.06f, 0.06f, 0.94f);
+    style.Colors[ImGuiCol_ChildBg]                = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+    style.Colors[ImGuiCol_PopupBg]                = ImVec4(0.08f, 0.08f, 0.08f, 0.94f);
+    style.Colors[ImGuiCol_Border]                 = ImVec4(0.43f, 0.43f, 0.50f, 0.50f);
+    style.Colors[ImGuiCol_BorderShadow]           = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+    style.Colors[ImGuiCol_FrameBg]                = ImVec4(0.16f, 0.29f, 0.48f, 0.54f);
+    style.Colors[ImGuiCol_FrameBgHovered]         = ImVec4(0.26f, 0.59f, 0.98f, 0.40f);
+    style.Colors[ImGuiCol_FrameBgActive]          = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
+    style.Colors[ImGuiCol_TitleBg]                = ImVec4(0.04f, 0.04f, 0.04f, 1.00f);
+    style.Colors[ImGuiCol_TitleBgActive]          = ImVec4(0.16f, 0.29f, 0.48f, 1.00f);
+    style.Colors[ImGuiCol_TitleBgCollapsed]       = ImVec4(0.00f, 0.00f, 0.00f, 0.51f);
+    style.Colors[ImGuiCol_MenuBarBg]              = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
+    style.Colors[ImGuiCol_ScrollbarBg]            = ImVec4(0.02f, 0.02f, 0.02f, 0.53f);
+    style.Colors[ImGuiCol_ScrollbarGrab]          = ImVec4(0.31f, 0.31f, 0.31f, 1.00f);
+    style.Colors[ImGuiCol_ScrollbarGrabHovered]   = ImVec4(0.41f, 0.41f, 0.41f, 1.00f);
+    style.Colors[ImGuiCol_ScrollbarGrabActive]    = ImVec4(0.51f, 0.51f, 0.51f, 1.00f);
+    style.Colors[ImGuiCol_CheckMark]              = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+    style.Colors[ImGuiCol_CheckboxSelectedBg]     = ImVec4(0.22f, 0.48f, 0.80f, 0.45f);
+    style.Colors[ImGuiCol_SliderGrab]             = ImVec4(0.24f, 0.52f, 0.88f, 1.00f);
+    style.Colors[ImGuiCol_SliderGrabActive]       = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+    style.Colors[ImGuiCol_Button]                 = ImVec4(0.26f, 0.59f, 0.98f, 0.40f);
+    style.Colors[ImGuiCol_ButtonHovered]          = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+    style.Colors[ImGuiCol_ButtonActive]           = ImVec4(0.06f, 0.53f, 0.98f, 1.00f);
+    style.Colors[ImGuiCol_Header]                 = ImVec4(0.26f, 0.59f, 0.98f, 0.31f);
+    style.Colors[ImGuiCol_HeaderHovered]          = ImVec4(0.26f, 0.59f, 0.98f, 0.80f);
+    style.Colors[ImGuiCol_HeaderActive]           = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+    style.Colors[ImGuiCol_Separator]              = ImVec4(0.43f, 0.43f, 0.50f, 0.50f);
+    style.Colors[ImGuiCol_SeparatorHovered]       = ImVec4(0.10f, 0.40f, 0.75f, 0.78f);
+    style.Colors[ImGuiCol_SeparatorActive]        = ImVec4(0.10f, 0.40f, 0.75f, 1.00f);
+    style.Colors[ImGuiCol_ResizeGrip]             = ImVec4(0.26f, 0.59f, 0.98f, 0.20f);
+    style.Colors[ImGuiCol_ResizeGripHovered]      = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
+    style.Colors[ImGuiCol_ResizeGripActive]       = ImVec4(0.26f, 0.59f, 0.98f, 0.95f);
+    style.Colors[ImGuiCol_InputTextCursor]        = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+    style.Colors[ImGuiCol_TabHovered]             = ImVec4(0.26f, 0.59f, 0.98f, 0.80f);
+    style.Colors[ImGuiCol_Tab]                    = ImVec4(0.18f, 0.35f, 0.58f, 0.86f);
+    style.Colors[ImGuiCol_TabSelected]            = ImVec4(0.20f, 0.41f, 0.68f, 1.00f);
+    style.Colors[ImGuiCol_TabSelectedOverline]    = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+    style.Colors[ImGuiCol_TabDimmed]              = ImVec4(0.07f, 0.10f, 0.15f, 0.97f);
+    style.Colors[ImGuiCol_TabDimmedSelected]      = ImVec4(0.14f, 0.26f, 0.42f, 1.00f);
+    style.Colors[ImGuiCol_TabDimmedSelectedOverline]  = ImVec4(0.50f, 0.50f, 0.50f, 0.00f);
+    style.Colors[ImGuiCol_DockingPreview]         = ImVec4(0.26f, 0.59f, 0.98f, 0.70f);
+    style.Colors[ImGuiCol_DockingEmptyBg]         = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
+    style.Colors[ImGuiCol_PlotLines]              = ImVec4(0.61f, 0.61f, 0.61f, 1.00f);
+    style.Colors[ImGuiCol_PlotLinesHovered]       = ImVec4(1.00f, 0.43f, 0.35f, 1.00f);
+    style.Colors[ImGuiCol_PlotHistogram]          = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
+    style.Colors[ImGuiCol_PlotHistogramHovered]   = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
+    style.Colors[ImGuiCol_TableHeaderBg]          = ImVec4(0.19f, 0.19f, 0.20f, 1.00f);
+    style.Colors[ImGuiCol_TableBorderStrong]      = ImVec4(0.31f, 0.31f, 0.35f, 1.00f);
+    style.Colors[ImGuiCol_TableBorderLight]       = ImVec4(0.23f, 0.23f, 0.25f, 1.00f);
+    style.Colors[ImGuiCol_TableRowBg]             = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+    style.Colors[ImGuiCol_TableRowBgAlt]          = ImVec4(1.00f, 1.00f, 1.00f, 0.06f);
+    style.Colors[ImGuiCol_TextLink]               = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+    style.Colors[ImGuiCol_TextSelectedBg]         = ImVec4(0.26f, 0.59f, 0.98f, 0.35f);
+    style.Colors[ImGuiCol_TreeLines]              = ImVec4(0.43f, 0.43f, 0.50f, 0.50f);
+    style.Colors[ImGuiCol_DragDropTarget]         = ImVec4(1.00f, 1.00f, 0.00f, 0.90f);
+    style.Colors[ImGuiCol_DragDropTargetBg]       = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+    style.Colors[ImGuiCol_UnsavedMarker]          = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+    style.Colors[ImGuiCol_NavCursor]              = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+    style.Colors[ImGuiCol_NavWindowingHighlight]  = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
+    style.Colors[ImGuiCol_NavWindowingDimBg]      = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
+    style.Colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
+}
+
+static void write_theme_ini()
+{
+    FILE* f = fopen((exe_dir() + "/scriptorioc_theme.ini").c_str(), "w");
+    if (!f) return;
+    ImGuiStyle& style = ImGui::GetStyle();
+    for (int i = 0; i < ImGuiCol_COUNT; i++)
+    {
+        const ImVec4& c = style.Colors[i];
+        fprintf(f, "%s = %.2f %.2f %.2f %.2f\n",
+            ImGui::GetStyleColorName((ImGuiCol)i), c.x, c.y, c.z, c.w);
+    }
+    fclose(f);
+}
+
+static void load_theme_ini()
+{
+    std::string path = exe_dir() + "/scriptorioc_theme.ini";
+    FILE* f = fopen(path.c_str(), "r");
+    if (!f) return;
+
+    std::map<std::string, ImGuiCol> name_to_idx;
+    for (int i = 0; i < ImGuiCol_COUNT; i++)
+        name_to_idx[ImGui::GetStyleColorName((ImGuiCol)i)] = (ImGuiCol)i;
+
+    ImGuiStyle& style = ImGui::GetStyle();
+    char buf[256];
+    while (fgets(buf, sizeof(buf), f))
+    {
+        buf[strcspn(buf, "\r\n")] = 0;
+        if (strlen(buf) == 0) continue;
+        char name[128];
+        float r, g, b, a;
+        if (sscanf(buf, "%127s = %f %f %f %f", name, &r, &g, &b, &a) == 5)
+        {
+            auto it = name_to_idx.find(name);
+            if (it != name_to_idx.end())
+                style.Colors[it->second] = ImVec4(r, g, b, a);
+        }
+    }
+    fclose(f);
+}
+
+static std::string format_color_name(const char* name)
+{
+    std::string result;
+    for (int i = 0; name[i]; i++)
+    {
+        if (i > 0 && name[i] >= 'A' && name[i] <= 'Z')
+            result += ' ';
+        result += name[i];
+    }
+    return result;
+}
+
 
 std::vector<DataEntry> load_data_file(const std::string& path, std::vector<StudyNode>* studies)
 {
@@ -758,6 +880,299 @@ static void delete_study_node(int id)
         }
 }
 
+// Find/Replace state
+static bool show_find_replace = false;
+static char find_text[256] = "";
+static char replace_text[256] = "";
+static int find_cursor = 0;
+static int find_match_start = -1;
+static int find_match_end = -1;
+static int find_match_index = 0;
+static int find_match_count = 0;
+static bool find_show_replace = false;
+static int find_target = -1; // -1 none, 0 notes, 1 study
+static bool g_find_requested = false;
+static bool g_find_need_focus = false;
+static bool g_find_nav_requested = false;
+
+static void find_reset_state()
+{
+    find_cursor = 0;
+    find_match_start = -1;
+    find_match_end = -1;
+    find_match_index = 0;
+    find_match_count = 0;
+    g_find_nav_requested = false;
+}
+
+static int count_matches(const char* buffer, const char* find_str)
+{
+    if (!buffer || !find_str || !*find_str) return 0;
+    int count = 0;
+    int flen = (int)strlen(find_str);
+    const char* p = buffer;
+    while ((p = strstr(p, find_str)) != nullptr)
+    {
+        count++;
+        p += flen;
+    }
+    return count;
+}
+
+static void do_find_next(char* buffer)
+{
+    if (!find_text[0] || !buffer) { find_reset_state(); return; }
+    int buflen = (int)strlen(buffer);
+    int flen = (int)strlen(find_text);
+
+    // Search from current cursor position
+    const char* found = (find_cursor < buflen) ? strstr(buffer + find_cursor, find_text) : nullptr;
+
+    // If not found from cursor, wrap around
+    if (!found)
+        found = strstr(buffer, find_text);
+
+    if (!found)
+    {
+        find_match_start = -1;
+        find_match_end = -1;
+        find_match_count = 0;
+        find_match_index = 0;
+        return;
+    }
+
+    find_match_start = (int)(found - buffer);
+    find_match_end = find_match_start + flen;
+    find_cursor = find_match_end;
+    find_match_count = count_matches(buffer, find_text);
+
+    // Determine which match this is (0-based)
+    find_match_index = 0;
+    const char* p = buffer;
+    while (p < found)
+    {
+        p = strstr(p, find_text);
+        if (!p) break;
+        if (p >= found) break;
+        find_match_index++;
+        p += flen;
+    }
+}
+
+static void do_find_prev(char* buffer)
+{
+    if (!find_text[0] || !buffer) { find_reset_state(); return; }
+    int flen = (int)strlen(find_text);
+
+    find_match_count = count_matches(buffer, find_text);
+    if (find_match_count == 0)
+    {
+        find_match_start = -1;
+        find_match_end = -1;
+        find_match_index = 0;
+        return;
+    }
+
+    // Find the last occurrence before find_cursor - flen
+    int search_limit = (find_cursor - flen > 0) ? find_cursor - flen : 0;
+    int last_pos = -1;
+    const char* p = buffer;
+    while ((p = strstr(p, find_text)) != nullptr)
+    {
+        int pos = (int)(p - buffer);
+        if (pos >= search_limit) break;
+        last_pos = pos;
+        p += flen;
+    }
+
+    // If not found before cursor, wrap to end
+    if (last_pos < 0)
+    {
+        // Find the last occurrence overall
+        p = buffer;
+        while ((p = strstr(p, find_text)) != nullptr)
+        {
+            last_pos = (int)(p - buffer);
+            p += flen;
+        }
+    }
+
+    if (last_pos >= 0)
+    {
+        find_match_start = last_pos;
+        find_match_end = last_pos + flen;
+        find_cursor = find_match_start;
+
+        // Determine match index
+        find_match_index = 0;
+        p = buffer;
+        while (p < buffer + last_pos)
+        {
+            p = strstr(p, find_text);
+            if (!p) break;
+            if (p >= buffer + last_pos) break;
+            find_match_index++;
+            p += flen;
+        }
+    }
+}
+
+static void do_replace(char* buffer, int buffer_size)
+{
+    if (!buffer || find_match_start < 0 || find_match_end <= find_match_start) return;
+    if (!find_text[0]) return;
+
+    int flen = find_match_end - find_match_start;
+    int rlen = (int)strlen(replace_text);
+    int buflen = (int)strlen(buffer);
+    int delta = rlen - flen;
+
+    if (buflen + delta >= buffer_size) return; // would overflow
+
+    // Shift content after match
+    if (delta != 0)
+    {
+        memmove(buffer + find_match_end + delta, buffer + find_match_end, buflen - find_match_end + 1);
+    }
+    // Copy replace text
+    if (rlen > 0)
+        memcpy(buffer + find_match_start, replace_text, rlen);
+
+    // Position cursor after the replaced text for next search
+    find_cursor = find_match_start + rlen;
+    find_match_start = -1;
+    find_match_end = -1;
+}
+
+static void do_replace_all(char* buffer, int buffer_size)
+{
+    if (!buffer || !find_text[0]) return;
+    int flen = (int)strlen(find_text);
+    int rlen = (int)strlen(replace_text);
+
+    int pos = 0;
+    int buflen = (int)strlen(buffer);
+    int count = 0;
+
+    while (pos < buflen)
+    {
+        const char* found = strstr(buffer + pos, find_text);
+        if (!found) break;
+        int match_start = (int)(found - buffer);
+        int match_end = match_start + flen;
+        int delta = rlen - flen;
+
+        if (buflen + delta >= buffer_size) break;
+
+        if (delta != 0)
+        {
+            memmove(buffer + match_end + delta, buffer + match_end, buflen - match_end + 1);
+            buflen += delta;
+        }
+        if (rlen > 0)
+            memcpy(buffer + match_start, replace_text, rlen);
+
+        pos = match_start + rlen;
+        count++;
+    }
+
+    find_reset_state();
+}
+
+static int editor_callback(ImGuiInputTextCallbackData* data)
+{
+    int editor_id = (int)(intptr_t)data->UserData;
+    if (g_find_nav_requested && show_find_replace && find_target == editor_id)
+    {
+        if (find_match_start >= 0 && find_match_end > find_match_start)
+        {
+            data->CursorPos = find_match_end;
+            GImGui->InputTextState.SetSelection(find_match_start, find_match_end);
+        }
+        g_find_nav_requested = false;
+    }
+    return 0;
+}
+
+static void render_find_bar(char* buffer, int buffer_size, int target_id)
+{
+    if (!show_find_replace || find_target != target_id) return;
+
+    // Close on Escape
+    if (ImGui::IsKeyPressed(ImGuiKey_Escape))
+    {
+        show_find_replace = false;
+        find_target = -1;
+        g_find_nav_requested = false;
+        return;
+    }
+
+    // Focus find input when bar opens
+    if (g_find_need_focus)
+    {
+        ImGui::SetKeyboardFocusHere();
+        g_find_need_focus = false;
+    }
+
+    // Find input row
+    ImGui::Text("Find:");
+    ImGui::SameLine();
+    ImGui::SetNextItemWidth(200);
+    bool find_enter = ImGui::InputText("##findinput", find_text, sizeof(find_text),
+        ImGuiInputTextFlags_EnterReturnsTrue);
+    ImGui::SameLine();
+    if (ImGui::Button("Find Next") || find_enter)
+    {
+        do_find_next(buffer);
+        g_find_nav_requested = true;
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Find Prev"))
+    {
+        do_find_prev(buffer);
+        g_find_nav_requested = true;
+    }
+
+    if (find_text[0] != '\0')
+    {
+        ImGui::SameLine();
+        if (find_match_count > 0)
+            ImGui::Text("%d/%d", find_match_index + 1, find_match_count);
+        else
+            ImGui::Text("No matches");
+    }
+
+    // Toggle replace
+    ImGui::SameLine();
+    if (ImGui::SmallButton(find_show_replace ? "Replace \xe2\x96\xb2" : "Replace \xe2\x96\xbc"))
+        find_show_replace = !find_show_replace;
+
+    if (find_show_replace)
+    {
+        ImGui::Text("Rep: ");
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(200);
+        bool rep_enter = ImGui::InputText("##repinput", replace_text, sizeof(replace_text),
+            ImGuiInputTextFlags_EnterReturnsTrue);
+        ImGui::SameLine();
+        if (ImGui::Button("Replace") || rep_enter)
+        {
+            if (find_match_start >= 0)
+            {
+                do_replace(buffer, buffer_size);
+                do_find_next(buffer);
+            }
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Replace All"))
+        {
+            do_replace_all(buffer, buffer_size);
+        }
+    }
+
+    ImGui::Separator();
+}
+
 // Main code
 int main(int, char**)
 {
@@ -866,71 +1281,25 @@ int main(int, char**)
     static bool show_menu = true;
     static bool allow_undock = false;
     static bool reset_layout = false;
+    static bool reset_colors = false;
 
     // Custom Colors
-        style.Colors[ImGuiCol_Text]                   = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-        style.Colors[ImGuiCol_TextDisabled]           = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
-        style.Colors[ImGuiCol_WindowBg]               = ImVec4(0.06f, 0.06f, 0.06f, 0.94f);
-        style.Colors[ImGuiCol_ChildBg]                = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-        style.Colors[ImGuiCol_PopupBg]                = ImVec4(0.08f, 0.08f, 0.08f, 0.94f);
-        style.Colors[ImGuiCol_Border]                 = ImVec4(0.43f, 0.43f, 0.50f, 0.50f);
-        style.Colors[ImGuiCol_BorderShadow]           = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-        style.Colors[ImGuiCol_FrameBg]                = ImVec4(0.16f, 0.29f, 0.48f, 0.54f);
-        style.Colors[ImGuiCol_FrameBgHovered]         = ImVec4(0.26f, 0.59f, 0.98f, 0.40f);
-        style.Colors[ImGuiCol_FrameBgActive]          = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
-        style.Colors[ImGuiCol_TitleBg]                = ImVec4(0.04f, 0.04f, 0.04f, 1.00f);
-        style.Colors[ImGuiCol_TitleBgActive]          = ImVec4(0.16f, 0.29f, 0.48f, 1.00f);
-        style.Colors[ImGuiCol_TitleBgCollapsed]       = ImVec4(0.00f, 0.00f, 0.00f, 0.51f);
-        style.Colors[ImGuiCol_MenuBarBg]              = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
-        style.Colors[ImGuiCol_ScrollbarBg]            = ImVec4(0.02f, 0.02f, 0.02f, 0.53f);
-        style.Colors[ImGuiCol_ScrollbarGrab]          = ImVec4(0.31f, 0.31f, 0.31f, 1.00f);
-        style.Colors[ImGuiCol_ScrollbarGrabHovered]   = ImVec4(0.41f, 0.41f, 0.41f, 1.00f);
-        style.Colors[ImGuiCol_ScrollbarGrabActive]    = ImVec4(0.51f, 0.51f, 0.51f, 1.00f);
-        style.Colors[ImGuiCol_CheckMark]              = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-        style.Colors[ImGuiCol_CheckboxSelectedBg]     = ImVec4(0.22f, 0.48f, 0.80f, 0.45f);
-        style.Colors[ImGuiCol_SliderGrab]             = ImVec4(0.24f, 0.52f, 0.88f, 1.00f);
-        style.Colors[ImGuiCol_SliderGrabActive]       = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-        style.Colors[ImGuiCol_Button]                 = ImVec4(0.26f, 0.59f, 0.98f, 0.40f);
-        style.Colors[ImGuiCol_ButtonHovered]          = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-        style.Colors[ImGuiCol_ButtonActive]           = ImVec4(0.06f, 0.53f, 0.98f, 1.00f);
-        style.Colors[ImGuiCol_Header]                 = ImVec4(0.26f, 0.59f, 0.98f, 0.31f);
-        style.Colors[ImGuiCol_HeaderHovered]          = ImVec4(0.26f, 0.59f, 0.98f, 0.80f);
-        style.Colors[ImGuiCol_HeaderActive]           = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-        style.Colors[ImGuiCol_Separator]              = ImVec4(0.43f, 0.43f, 0.50f, 0.50f);
-        style.Colors[ImGuiCol_SeparatorHovered]       = ImVec4(0.10f, 0.40f, 0.75f, 0.78f);
-        style.Colors[ImGuiCol_SeparatorActive]        = ImVec4(0.10f, 0.40f, 0.75f, 1.00f);
-        style.Colors[ImGuiCol_ResizeGrip]             = ImVec4(0.26f, 0.59f, 0.98f, 0.20f);
-        style.Colors[ImGuiCol_ResizeGripHovered]      = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
-        style.Colors[ImGuiCol_ResizeGripActive]       = ImVec4(0.26f, 0.59f, 0.98f, 0.95f);
-        style.Colors[ImGuiCol_InputTextCursor]        = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-        style.Colors[ImGuiCol_TabHovered]             = ImVec4(0.26f, 0.59f, 0.98f, 0.80f);
-        style.Colors[ImGuiCol_Tab]                    = ImVec4(0.18f, 0.35f, 0.58f, 0.86f);
-        style.Colors[ImGuiCol_TabSelected]            = ImVec4(0.20f, 0.41f, 0.68f, 1.00f);
-        style.Colors[ImGuiCol_TabSelectedOverline]    = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-        style.Colors[ImGuiCol_TabDimmed]              = ImVec4(0.07f, 0.10f, 0.15f, 0.97f);
-        style.Colors[ImGuiCol_TabDimmedSelected]      = ImVec4(0.14f, 0.26f, 0.42f, 1.00f);
-        style.Colors[ImGuiCol_TabDimmedSelectedOverline]  = ImVec4(0.50f, 0.50f, 0.50f, 0.00f);
-        style.Colors[ImGuiCol_DockingPreview]         = ImVec4(0.26f, 0.59f, 0.98f, 0.70f);
-        style.Colors[ImGuiCol_DockingEmptyBg]         = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
-        style.Colors[ImGuiCol_PlotLines]              = ImVec4(0.61f, 0.61f, 0.61f, 1.00f);
-        style.Colors[ImGuiCol_PlotLinesHovered]       = ImVec4(1.00f, 0.43f, 0.35f, 1.00f);
-        style.Colors[ImGuiCol_PlotHistogram]          = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
-        style.Colors[ImGuiCol_PlotHistogramHovered]   = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
-        style.Colors[ImGuiCol_TableHeaderBg]          = ImVec4(0.19f, 0.19f, 0.20f, 1.00f);
-        style.Colors[ImGuiCol_TableBorderStrong]      = ImVec4(0.31f, 0.31f, 0.35f, 1.00f);
-        style.Colors[ImGuiCol_TableBorderLight]       = ImVec4(0.23f, 0.23f, 0.25f, 1.00f);
-        style.Colors[ImGuiCol_TableRowBg]             = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-        style.Colors[ImGuiCol_TableRowBgAlt]          = ImVec4(1.00f, 1.00f, 1.00f, 0.06f);
-        style.Colors[ImGuiCol_TextLink]               = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-        style.Colors[ImGuiCol_TextSelectedBg]         = ImVec4(0.26f, 0.59f, 0.98f, 0.35f);
-        style.Colors[ImGuiCol_TreeLines]              = ImVec4(0.43f, 0.43f, 0.50f, 0.50f);
-        style.Colors[ImGuiCol_DragDropTarget]         = ImVec4(1.00f, 1.00f, 0.00f, 0.90f);
-        style.Colors[ImGuiCol_DragDropTargetBg]       = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-        style.Colors[ImGuiCol_UnsavedMarker]          = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-        style.Colors[ImGuiCol_NavCursor]              = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-        style.Colors[ImGuiCol_NavWindowingHighlight]  = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
-        style.Colors[ImGuiCol_NavWindowingDimBg]      = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
-        style.Colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
+    set_default_colors();
+
+    // Load theme from file, or write defaults
+    {
+        std::string theme_path = exe_dir() + "/scriptorioc_theme.ini";
+        FILE* ftest = fopen(theme_path.c_str(), "r");
+        if (ftest)
+        {
+            fclose(ftest);
+            load_theme_ini();
+        }
+        else
+        {
+            write_theme_ini();
+        }
+    }
     // End Custom Colors
 
 
@@ -979,6 +1348,7 @@ int main(int, char**)
     static bool show_bookmarks_dialog = false;
     static bool show_history_dialog = false;
     static bool show_special_search_dialog = false;
+    static bool show_theme_editor = false;
     static char search_buf[256] = "";
     static std::vector<SearchResult> search_results;
 
@@ -1209,9 +1579,13 @@ int main(int, char**)
         {
             show_menu = !show_menu;
         }
-        if (ImGui::IsKeyDown(ImGuiMod_Ctrl) && ImGui::IsKeyPressed(ImGuiKey_F))
+        if (ImGui::IsKeyDown(ImGuiMod_Ctrl) && ImGui::IsKeyDown(ImGuiMod_Shift) && ImGui::IsKeyPressed(ImGuiKey_F))
         {
             show_search = !show_search;
+        }
+        if (ImGui::IsKeyDown(ImGuiMod_Ctrl) && !ImGui::IsKeyDown(ImGuiMod_Shift) && ImGui::IsKeyPressed(ImGuiKey_F))
+        {
+            g_find_requested = true;
         }
         if (ImGui::IsKeyDown(ImGuiMod_Ctrl) && ImGui::IsKeyPressed(ImGuiKey_H))
         {
@@ -1471,7 +1845,7 @@ int main(int, char**)
             }
             if (ImGui::BeginMenu("Search"))
             {
-                if (ImGui::MenuItem("Search Bible", "Ctrl+F"))
+                if (ImGui::MenuItem("Search Bible", "Ctrl+Shift+F"))
                 {
                     g_search_fired = false;
                     show_search = true;
@@ -1528,6 +1902,15 @@ int main(int, char**)
                     g_data_path = exe_dir() + "/notes.scrp";
                     remove((exe_dir() + "/scriptorioc_state.ini").c_str());
                     reset_layout = true;
+                }
+                if (ImGui::MenuItem("Edit Colors"))
+                {
+                    show_theme_editor = true;
+                }
+                if (ImGui::MenuItem("Reset Colors"))
+                {
+                    remove((exe_dir() + "/scriptorioc_theme.ini").c_str());
+                    reset_colors = true;
                 }
                 ImGui::EndMenu();
             }
@@ -1586,6 +1969,14 @@ int main(int, char**)
             reset_layout = false;
             remove((exe_dir() + "/imgui.ini").c_str());
             ImGui::ClearIniSettings();
+        }
+
+        // Reset theme if requested
+        if (reset_colors)
+        {
+            reset_colors = false;
+            set_default_colors();
+            write_theme_ini();
         }
 
         // Set up initial split
@@ -1983,6 +2374,14 @@ int main(int, char**)
             ImGui::SetNextWindowSize(ImVec2(400, 300), ImGuiCond_FirstUseEver);
             ImGui::Begin("Notes Editor", &show_notes);
             {
+                if (g_find_requested && ImGui::IsWindowFocused())
+                {
+                    g_find_requested = false;
+                    show_find_replace = !show_find_replace;
+                    if (show_find_replace) { find_target = 0; find_reset_state(); g_find_need_focus = true; }
+                    else find_target = -1;
+                }
+
                 ImGui::TextDisabled("%s", g_data_path.c_str());
 
                 const char* bn = book_name(tree_data, note_book);
@@ -1993,9 +2392,13 @@ int main(int, char**)
 
                 ImGui::Separator();
 
+                render_find_bar(note_edit_buf, (int)sizeof(note_edit_buf), 0);
+
                 static ImGuiInputTextFlags notes_flags = ImGuiInputTextFlags_AllowTabInput;
                 ImGui::InputTextMultiline("##note", note_edit_buf, sizeof(note_edit_buf),
-                    ImVec2(-FLT_MIN, -FLT_MIN), notes_flags);
+                    ImVec2(-FLT_MIN, -FLT_MIN),
+                    notes_flags | ImGuiInputTextFlags_CallbackAlways,
+                    editor_callback, (void*)(intptr_t)0);
             }
             ImGui::End();
         }
@@ -2269,6 +2672,8 @@ int main(int, char**)
                     if (idx >= 0)
                     {
                         ImGui::Text("Rename: %s", g_studies[idx].title.c_str());
+                        if (ImGui::IsWindowAppearing())
+                            ImGui::SetKeyboardFocusHere();
                         if (ImGui::InputText("Name", g_rename_buf, sizeof(g_rename_buf), ImGuiInputTextFlags_EnterReturnsTrue))
                         {
                             if (strlen(g_rename_buf) > 0)
@@ -2308,6 +2713,13 @@ int main(int, char**)
         {
             ImGui::SetNextWindowSize(ImVec2(400, 300), ImGuiCond_FirstUseEver);
             ImGui::Begin("Study Editor", &show_study_editor);
+            if (g_find_requested && ImGui::IsWindowFocused())
+            {
+                g_find_requested = false;
+                show_find_replace = !show_find_replace;
+                if (show_find_replace) { find_target = 1; find_reset_state(); g_find_need_focus = true; }
+                else find_target = -1;
+            }
 
             if (study_edit_id >= 0)
             {
@@ -2329,9 +2741,13 @@ int main(int, char**)
 
             ImGui::Separator();
 
+            render_find_bar(study_edit_buf, (int)sizeof(study_edit_buf), 1);
+
             static ImGuiInputTextFlags study_flags = ImGuiInputTextFlags_AllowTabInput;
             ImGui::InputTextMultiline("##study", study_edit_buf, sizeof(study_edit_buf),
-                ImVec2(-FLT_MIN, -FLT_MIN), study_flags);
+                ImVec2(-FLT_MIN, -FLT_MIN),
+                study_flags | ImGuiInputTextFlags_CallbackAlways,
+                editor_callback, (void*)(intptr_t)1);
 
             ImGui::End();
         }
@@ -2534,6 +2950,55 @@ int main(int, char**)
             ImGui::End();
         }
 
+        if (show_theme_editor)
+        {
+            ImGui::SetNextWindowSize(ImVec2(460, 600), ImGuiCond_FirstUseEver);
+            ImGui::Begin("Theme Editor", &show_theme_editor);
+            if (ImGui::IsWindowFocused() && !ImGui::IsAnyItemActive() && ImGui::IsKeyPressed(ImGuiKey_Escape))
+                show_theme_editor = false;
+
+            if (ImGui::Button("Save"))
+            {
+                write_theme_ini();
+                show_theme_editor = false;
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Cancel"))
+            {
+                set_default_colors();
+                load_theme_ini();
+                show_theme_editor = false;
+            }
+
+            ImGui::Separator();
+
+            static char theme_filter[64] = "";
+            ImGui::SetNextItemWidth(-1);
+            ImGui::InputTextWithHint("##filter", "Filter colors...", theme_filter, sizeof(theme_filter));
+
+            ImGui::BeginChild("colors", ImVec2(0, 0), false);
+            ImGuiStyle& style = ImGui::GetStyle();
+            for (int i = 0; i < ImGuiCol_COUNT; i++)
+            {
+                std::string label = format_color_name(ImGui::GetStyleColorName((ImGuiCol)i));
+                if (theme_filter[0])
+                {
+                    std::string lower = label;
+                    for (auto& c : lower) c = tolower(c);
+                    std::string filter_lower = theme_filter;
+                    for (auto& c : filter_lower) c = tolower(c);
+                    if (lower.find(filter_lower) == std::string::npos)
+                        continue;
+                }
+                ImGui::ColorEdit4(label.c_str(),
+                    (float*)&style.Colors[i],
+                    ImGuiColorEditFlags_NoInputs);
+            }
+            ImGui::EndChild();
+
+            ImGui::End();
+        }
+
         {
             ImGui::Begin("Treeview");
 
@@ -2670,6 +3135,9 @@ int main(int, char**)
 
             ImGui::End();
         }
+
+        // Clear find request if no editor consumed it
+        g_find_requested = false;
 
         // Rendering
         ImGui::Render();
