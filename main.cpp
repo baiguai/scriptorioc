@@ -2978,7 +2978,7 @@ int main(int, char**)
             {
                 ImGui::ColorEdit4(format_color_name(ImGui::GetStyleColorName((ImGuiCol)i)).c_str(),
                     (float*)&style.Colors[i],
-                    ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+                    ImGuiColorEditFlags_NoInputs);
             }
             ImGui::EndChild();
 
