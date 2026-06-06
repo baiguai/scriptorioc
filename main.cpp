@@ -814,6 +814,35 @@ static bool parse_reference(const char* input, const std::vector<TestamentInfo>&
         if (count == 1) best_id = id;
     }
 
+    // Fallback: extract first alphabetic word and match as abbreviation (e.g. "exo 20:1")
+    if (best_id < 0)
+    {
+        size_t first_non_alpha = before_verse.find_first_of(" \t0123456789");
+        std::string abbr = before_verse.substr(0, first_non_alpha);
+        if (abbr.size() >= 2)
+        {
+            int count = 0, id = -1;
+            for (auto& t : data)
+                for (auto& b : t.books)
+                    if (b.name.size() >= abbr.size() && strncasecmp(b.name.c_str(), abbr.c_str(), abbr.size()) == 0)
+                    { count++; id = b.id; }
+            if (count == 1)
+            {
+                best_id = id;
+                std::string remaining = (first_non_alpha != std::string::npos) ? before_verse.substr(first_non_alpha) : "";
+                size_t ns = remaining.find_first_not_of(" \t");
+                remaining = (ns != std::string::npos) ? remaining.substr(ns) : "";
+                if (!remaining.empty())
+                {
+                    char* end = nullptr;
+                    int ch = strtol(remaining.c_str(), &end, 10);
+                    if (end != remaining.c_str() && *end == '\0')
+                        chapter = ch;
+                }
+            }
+        }
+    }
+
     if (best_id < 0) return false;
     out_book = best_id;
     out_chapter = chapter;
