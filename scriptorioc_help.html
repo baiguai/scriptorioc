@@ -657,25 +657,25 @@
             </div>
 
             <div class="search-dialog" id="searchDialog" style="display: none;">
-                <input id="searchInput" placeholder="Search... (# for tags, #: regex, +: words)" type="text">
-                <div class="search-results" id="searchList"><div class="selected">Scriptorioc</div></div>
+                <input id="searchInput" placeholder="Search... (# for tags, r: regex, +: words)" type="text">
+                <div class="search-results" id="searchList"><div class="selected">Other Options</div></div>
             </div>
 
             <div class="search-dialog" id="linkSearchDialog" style="display: none;">
                 <input id="linkSearchInput" placeholder="Search to insert link..." type="text">
-                <div class="search-results" id="linkSearchList"><div>Notes</div><div>Studies</div><div class="selected">Links</div></div>
+                <div class="search-results" id="linkSearchList"></div>
             </div>
 
-            <div class="search-dialog" id="helpDialogUnified" style="display: none;">
-              <input id="helpFilter" type="text" placeholder="Filter help (Start with : to search keys only)...">
-              <div id="helpResults" class="search-results"><div><b>#</b> <span class="dim">(TREE) - </span>Show note links dialog</div><div><b>X</b> <span class="dim">(TREE) - </span>Show broken note links</div><div><b>Control+'</b> <span class="dim">(INSERT) - </span>Insert Link</div></div>
+            <div class="search-dialog" id="helpDialogUnified" style="display:none;">
+              <input id="helpFilter" type="text" placeholder="Filter help (Start with : to search keys only, !r for regex cheatsheet)...">
+              <div id="helpResults" class="search-results"></div>
               <p><a href="https://scribboleth.infinityfreeapp.com/" target="_blank">Full Help System</a></p>
               <p style="margin-top:6px;">Press ESC to close.</p>
             </div>
 
             <div id="linksDialog" ondblclick="closeLinksDialog();" style="display: none;">
                 <h3>Links in Note</h3>
-                <div id="linksList"><a href="#" data-node-id="vf2ehp65" class="selected">Links</a></div>
+                <div id="linksList"><a href="#" data-node-id="kqr4o4g3" class="selected">The Options Dialog</a></div>
             </div>
 
             <div id="marksDialog" style="display: none;">
@@ -689,7 +689,7 @@
                 </p>
             </div>
 
-            <div id="replaceDialog" style="display: none; top: 15%; left: 5px; width: 230px;">
+            <div id="replaceDialog" style="display: none;">
                 <h3>Find<span id="ttlReplace"> &amp; Replace<span></span></span></h3>
                 <label id="lblFind" for="searchText">Find</label>
                 <input id="searchText" type="text">
@@ -708,7 +708,7 @@
             <div id="historyDialog" style="display: none;">
                 <h3>History</h3>
                 <div class="history-content">
-                    <div id="historyList"><div class="selected" style="background: var(--sel-bg);">REGEX Cheat Sheet</div><div>Regular Expression Searches</div><div>Notes</div><div>Other Translations</div><div>Adding New Translations</div><div>Tome Well</div><div>Default Translation</div></div>
+                    <div id="historyList"></div>
                 </div>
             </div>
 
@@ -723,9 +723,9 @@
                 <p style="color:var(--dim); font-size:0.9em;">Press Enter to save, Esc to cancel.</p>
             </div>
 
-            <div id="versionDialog" class="search-dialog" style="display: none; width: 300px; max-width: 90vw;">
+            <div id="versionDialog" class="search-dialog" style="display:none;width:300px;max-width:90vw;">
                 <h3>Version</h3>
-                <p>Current Version: <span id="versionNumber">1.0.6</span></p>
+                <p>Current Version: <span id="versionNumber"></span></p>
             </div>
 
             <div id="themePickerDialog" class="search-dialog" style="display:none;width:350px;max-width:90vw;">
@@ -735,15 +735,15 @@
             </div>
 
 
-            <aside class="tree" id="tree" onclick="closeDialogs(); activateTree();"><ul><li><div class="node"><span class="twisty"><svg width="6" height="6" viewBox="0 0 6 6" xmlns="http://www.w3.org/2000/svg"><circle cx="3" cy="3" r="1" fill="currentColor"></circle></svg></span><span class="title">Scriptorioc</span></div></li><li><div class="node"><span class="twisty"><svg width="10" height="10" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg"><path d="M1 3 L5 7 L9 3 Z" fill="currentColor"></path></svg></span><span class="title">Features</span></div><ul><li><div class="node"><span class="twisty"><svg width="10" height="10" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg"><path d="M3 1 L7 5 L3 9 Z" fill="currentColor"></path></svg></span><span class="title">UI Layout</span></div></li><li><div class="node"><span class="twisty"><svg width="6" height="6" viewBox="0 0 6 6" xmlns="http://www.w3.org/2000/svg"><circle cx="3" cy="3" r="1" fill="currentColor"></circle></svg></span><span class="title">Hotkeys</span></div></li><li><div class="node"><span class="twisty"><svg width="6" height="6" viewBox="0 0 6 6" xmlns="http://www.w3.org/2000/svg"><circle cx="3" cy="3" r="1" fill="currentColor"></circle></svg></span><span class="title">Default Translation</span></div></li><li><div class="node"><span class="twisty"><svg width="6" height="6" viewBox="0 0 6 6" xmlns="http://www.w3.org/2000/svg"><circle cx="3" cy="3" r="1" fill="currentColor"></circle></svg></span><span class="title">Go To Reference</span></div></li><li><div class="node"><span class="twisty"><svg width="6" height="6" viewBox="0 0 6 6" xmlns="http://www.w3.org/2000/svg"><circle cx="3" cy="3" r="1" fill="currentColor"></circle></svg></span><span class="title">Other Translations</span></div></li><li><div class="node"><span class="twisty"><svg width="6" height="6" viewBox="0 0 6 6" xmlns="http://www.w3.org/2000/svg"><circle cx="3" cy="3" r="1" fill="currentColor"></circle></svg></span><span class="title">Notes</span></div></li><li><div class="node"><span class="twisty"><svg width="6" height="6" viewBox="0 0 6 6" xmlns="http://www.w3.org/2000/svg"><circle cx="3" cy="3" r="1" fill="currentColor"></circle></svg></span><span class="title">Studies</span></div></li><li><div class="node selected"><span class="twisty"><svg width="6" height="6" viewBox="0 0 6 6" xmlns="http://www.w3.org/2000/svg"><circle cx="3" cy="3" r="1" fill="currentColor"></circle></svg></span><span class="title">Links</span></div></li><li><div class="node"><span class="twisty"><svg width="6" height="6" viewBox="0 0 6 6" xmlns="http://www.w3.org/2000/svg"><circle cx="3" cy="3" r="1" fill="currentColor"></circle></svg></span><span class="title">Regular Expression Searches</span></div></li><li><div class="node"><span class="twisty"><svg width="6" height="6" viewBox="0 0 6 6" xmlns="http://www.w3.org/2000/svg"><circle cx="3" cy="3" r="1" fill="currentColor"></circle></svg></span><span class="title">Searching the Entire Bible</span></div></li></ul></li><li><div class="node"><span class="twisty"><svg width="10" height="10" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg"><path d="M3 1 L7 5 L3 9 Z" fill="currentColor"></path></svg></span><span class="title">Common Tasks</span></div></li><li><div class="node"><span class="twisty"><svg width="10" height="10" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg"><path d="M3 1 L7 5 L3 9 Z" fill="currentColor"></path></svg></span><span class="title">Advanced</span></div></li></ul></aside>
+            <aside class="tree" id="tree" onclick="closeDialogs(); activateTree();"><ul><li><div class="node selected"><span class="twisty"><svg width="6" height="6" viewBox="0 0 6 6" xmlns="http://www.w3.org/2000/svg"><circle cx="3" cy="3" r="1" fill="currentColor"></circle></svg></span><span class="title">Scriptorioc</span></div></li><li><div class="node"><span class="twisty"><svg width="10" height="10" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg"><path d="M1 3 L5 7 L9 3 Z" fill="currentColor"></path></svg></span><span class="title">Features</span></div><ul><li><div class="node"><span class="twisty"><svg width="10" height="10" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg"><path d="M3 1 L7 5 L3 9 Z" fill="currentColor"></path></svg></span><span class="title">UI Layout</span></div></li><li><div class="node"><span class="twisty"><svg width="6" height="6" viewBox="0 0 6 6" xmlns="http://www.w3.org/2000/svg"><circle cx="3" cy="3" r="1" fill="currentColor"></circle></svg></span><span class="title">Hotkeys</span></div></li><li><div class="node"><span class="twisty"><svg width="6" height="6" viewBox="0 0 6 6" xmlns="http://www.w3.org/2000/svg"><circle cx="3" cy="3" r="1" fill="currentColor"></circle></svg></span><span class="title">Default Translation</span></div></li><li><div class="node"><span class="twisty"><svg width="6" height="6" viewBox="0 0 6 6" xmlns="http://www.w3.org/2000/svg"><circle cx="3" cy="3" r="1" fill="currentColor"></circle></svg></span><span class="title">Go To Reference</span></div></li><li><div class="node"><span class="twisty"><svg width="6" height="6" viewBox="0 0 6 6" xmlns="http://www.w3.org/2000/svg"><circle cx="3" cy="3" r="1" fill="currentColor"></circle></svg></span><span class="title">Other Translations</span></div></li><li><div class="node"><span class="twisty"><svg width="6" height="6" viewBox="0 0 6 6" xmlns="http://www.w3.org/2000/svg"><circle cx="3" cy="3" r="1" fill="currentColor"></circle></svg></span><span class="title">Notes</span></div></li><li><div class="node"><span class="twisty"><svg width="6" height="6" viewBox="0 0 6 6" xmlns="http://www.w3.org/2000/svg"><circle cx="3" cy="3" r="1" fill="currentColor"></circle></svg></span><span class="title">Studies</span></div></li><li><div class="node"><span class="twisty"><svg width="6" height="6" viewBox="0 0 6 6" xmlns="http://www.w3.org/2000/svg"><circle cx="3" cy="3" r="1" fill="currentColor"></circle></svg></span><span class="title">Links</span></div></li><li><div class="node"><span class="twisty"><svg width="6" height="6" viewBox="0 0 6 6" xmlns="http://www.w3.org/2000/svg"><circle cx="3" cy="3" r="1" fill="currentColor"></circle></svg></span><span class="title">Regular Expression Searches</span></div></li><li><div class="node"><span class="twisty"><svg width="6" height="6" viewBox="0 0 6 6" xmlns="http://www.w3.org/2000/svg"><circle cx="3" cy="3" r="1" fill="currentColor"></circle></svg></span><span class="title">Searching the Entire Bible</span></div></li></ul></li><li><div class="node"><span class="twisty"><svg width="10" height="10" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg"><path d="M3 1 L7 5 L3 9 Z" fill="currentColor"></path></svg></span><span class="title">Common Tasks</span></div></li><li><div class="node"><span class="twisty"><svg width="10" height="10" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg"><path d="M3 1 L7 5 L3 9 Z" fill="currentColor"></path></svg></span><span class="title">Advanced</span></div></li></ul></aside>
             <section class="editor">
                 <div id="statusBar" class="status" onclick="closeDialogs();" ondblclick="toggleMobileMenu();" title="Double click to toggle Mobile Mode">
-                    <span class="pill" id="mode" style="display: block;">NORMAL</span>
+                    <span class="pill" id="mode" style="display: block;">TREE</span>
                     <span class="pill" id="kind">NOTE</span>
-                    <span class="dim" id="path">/Features</span>
+                    <span class="dim" id="path">/</span>
                     <span class="pill" id="msg"></span>
                 </div>
-                <textarea id="editorArea" spellcheck="false" class="normal-mode"></textarea>
+                <textarea id="editorArea" spellcheck="false" readonly="readonly" class=""></textarea>
             </section>
             </div>
 
@@ -967,10 +967,6 @@
         "title": "Getting Word Counts"
     },
     {
-        "id": "ig7cwz7v",
-        "title": "Scriptorioc"
-    },
-    {
         "id": "4apemz2d",
         "title": "Notes"
     },
@@ -981,6 +977,10 @@
     {
         "id": "vf2ehp65",
         "title": "Links"
+    },
+    {
+        "id": "ig7cwz7v",
+        "title": "Scriptorioc"
     }
 ];
 
@@ -1007,7 +1007,7 @@
             let importedFileName = null;
 
             let fileName = "scriptorioc_help";
-            let curVersion = "1.0.6"
+            let curVersion = "1.0.7"
             let showInitHelp = false;
             let headerTemplate = "__| ^*^ |__";
             let selectedId = null;
@@ -1199,7 +1199,7 @@
                     { key: "N", mode: "TREE", description: "Toggle tree visibility" },
                     { key: "]", mode: "TREE", description: "Expand the treeview panel" },
                     { key: "[", mode: "TREE", description: "Shrink the treeview panel" },
-                    { key: "/", mode: "TREE", description: "Search (begin with : labels, # tags, +: all words comma sep)" },
+                    { key: "/", mode: "TREE", description: "Search (begin with : labels, r: regex, # tags, +: all words comma sep)" },
                     { key: "\\", mode: "TREE", description: "Peek search (search results replace treeview)" },
                     { key: "f", mode: "TREE", description: "Find text in the current note " },
                     { key: "#", mode: "TREE", description: "Show note links dialog" },
@@ -1271,7 +1271,7 @@
                     { key: "D", mode: "TREE", description: "Delete the current node" },
                     { key: "i", mode: "TREE", description: "Edit current note" },
                     { key: "I", mode: "TREE", description: "Edit current note" },
-                    { key: "/", mode: "TREE", description: "Search (begin with : labels, # tags, +: all words comma sep)" },
+                    { key: "/", mode: "TREE", description: "Search (begin with : labels, r: regex, # tags, +: all words comma sep)" },
                     { key: "\\", mode: "TREE", description: "Peek search (search results replace treeview)" },
                     { key: "f", mode: "TREE", description: "Find/Replace text in the current note " },
                     { key: "#", mode: "TREE", description: "Show note links dialog" },
@@ -1349,6 +1349,23 @@
                     { key: "Control+;", mode: "VISUAL", description: "Create/Update table" },
                     { key: "Escape", mode: "INSERT", description: "Exit to NORMAL mode" },
                     { key: "<number>", mode: "NORMAL", description: "If you enter a number first, some commands will repeat that many times." }
+                ];
+
+                let helpRegexLib = [
+                    { key: "^hello", mode: "", description: "Lines starting with 'hello'" },
+                    { key: "hello$", mode: "", description: "Lines ending with 'hello'" },
+                    { key: "^hello$", mode: "", description: "Lines containing exactly 'hello'" },
+                    { key: "[Hh]ello)", mode: "", description: "Lines containing 'hello' or 'Hello'" },
+                    { key: "\bhello\b", mode: "", description: "Matches only 'hello' as a whole word" },
+                    { key: "hello.*world", mode: "", description: "Matches 'hello' then 'world'" },
+                    { key: "hello|world", mode: "", description: "Matches 'hello' or 'world'" },
+                    { key: "?=.*hello)(?=.*world)", mode: "", description: "Matches 'hello' and 'world'" },
+                    { key: "^(?=.*hello)(?=.*world).*$", mode: "", description: "Matches 'hello' and 'world' in any order" },
+                    { key: "^.{100,}$", mode: "", description: "Matches lines with 100+ characters" },
+                    { key: "^.{0,10}$", mode: "", description: "Matches lines with 10 or fewer characters" },
+                    { key: "\d+", mode: "", description: "Matches lines containing only digits" },
+                    { key: "\w+@\w+\.\w+", mode: "", description: "Matches lines containing email-like patterns" },
+                    { key: "http\S+", mode: "", description: "Matches lines containing URLs" },
                 ];
 
                 function ensureSelection(){
@@ -4263,7 +4280,7 @@
 
             function searchTree(query) {
                 searchMatches = [];
-                if (query.startsWith("#:")) {
+                if (query.startsWith("r:")) {
                     searchTreeRegex(query.substring(2));
                     return;
                 }
@@ -4271,7 +4288,7 @@
                     searchTreeWords(query.substring(2));
                     return;
                 }
-                if (query.startsWith("#") && !query.startsWith("#:")) {
+                if (query.startsWith("#")) {
                     searchTreeTags(query.substring(1));
                     return;
                 }
@@ -4364,6 +4381,38 @@
                     }
                 })(treeData);
 
+                searchIndex = 0;
+                renderSearchList();
+            }
+
+            function searchTreeRegex(query) {
+                const rxPattern = new RegExp(query, 'ims');
+                let res = [];
+
+                (function walk(nodes) {
+                    for (const n of nodes) {
+                        const nodeTitle = n.title ? n.title : '';
+                        const nodeContent = n.content ? n.content : ''; 
+
+                        let matches = false;
+
+                        let allPartsMatch = true;
+
+                        res = nodeTitle.match(rxPattern);
+                        if (!matches && res && res.length > 0) {
+                            matches = true;
+                        }
+                        res = nodeContent.match(rxPattern);
+                        if (!matches && res && res.length > 0) {
+                            matches = true;
+                        }
+
+                        if (matches) {
+                            searchMatches.push(n);
+                        }
+                        if (n.children && n.children.length) walk(n.children);
+                    }
+                })(treeData);
                 searchIndex = 0;
                 renderSearchList();
             }
@@ -4698,6 +4747,7 @@
                 if (mode === 'ReadOnly') data = helpReadOnly;
                 else if (mode === 'VimEnabled') data = helpVimEnabled;
                 else data = helpVimDisabled;
+                let rgxData = helpRegexLib;
 
                 // --- Normalize comparison function ---
                 function matches(h, term) {
@@ -4724,7 +4774,7 @@
                     }
                     results.innerHTML = list
                     .map(h => {
-                        const modeSuffix = h.mode && h.mode.trim() !== "" ? ` <span class="dim">(${escapeHtml(h.mode)}) - </span>` : "";
+                        const modeSuffix = h.mode && h.mode.trim() !== "" ? ` <span class="dim">(${escapeHtml(h.mode)}) - </span>` : "&nbsp;&nbsp;";
                         return `<div><b>${escapeHtml(h.key)}</b>${modeSuffix}${escapeHtml(h.description)}</div>`;
                     })
                     .join('');
@@ -4750,6 +4800,12 @@
                 input.oninput = () => {
                     const term = input.value.trim();
                     if (!term) return renderList(data);
+
+                    if (term === "!r") {
+                        renderList(rgxData);
+                        return;
+                    }
+
                     renderList(data.filter(h => matches(h, term)));
                 };
             }
@@ -4784,12 +4840,12 @@
                     // Ensure correct replacement of the old database
                     let htmlContent = "<!DOCTYPE html>" + htmlDoc.outerHTML;
                     if (saveName) {
-                        htmlContent = htmlContent.replace(/let\s+fileName\s*=\s*"([^"]*)";/, `let fileName = "scriptorioc_help";`);
+                        htmlContent = htmlContent.replace(/let\s+fileName\s*=\s*"([^"]*)";/, `let fileName = "${name}";`);
                     } else {
                         // fileName
                         htmlContent = htmlContent.replace(
                         /let\s+fileName\s*=\s*"([^"]*)";/,
-                        `let fileName = "scriptorioc_help";`
+                        `let fileName = "${fileName}";`
                         );
                     }
 
@@ -4969,7 +5025,7 @@
                     // Add content
                     if (node.content && node.content.trim() !== "" && !node.content.includes("#noexp")) {
                         const contentLines = node.content.split('\n').map(line => indent + line);
-                        content += contentLines.join('\n') + "\n\n";
+                        content += contentLines.join('\n') + "\n\n\n\n";
                     }
 
                     // Process children
@@ -5601,8 +5657,6 @@
                 }, 3000);                               // wait 3s after last change
             }
 </script>
-
-
 
 
 </body></html>
