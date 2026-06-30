@@ -932,6 +932,7 @@ static int find_target = -1; // -1 none, 0 notes, 1 study
 static bool g_find_requested = false;
 static bool g_find_need_focus = false;
 static bool g_find_nav_requested = false;
+static bool g_print_study_requested = false;
 
 static void find_reset_state()
 {
@@ -1738,6 +1739,42 @@ int main(int, char**)
             g_expand_all = true;
             g_collapse_all = false;
         }
+        if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_P))
+            g_print_study_requested = true;
+        if (g_print_study_requested)
+        {
+            g_print_study_requested = false;
+            if (show_study_editor && study_edit_buf[0])
+            {
+                if (study_edit_id >= 0)
+                    flush_study();
+                char tmp_path[512];
+            #ifdef _WIN32
+                const char* tmpdir = getenv("TEMP");
+                if (!tmpdir) tmpdir = ".";
+                snprintf(tmp_path, sizeof(tmp_path), "%s\\scriptorioc_study.txt", tmpdir);
+            #else
+                snprintf(tmp_path, sizeof(tmp_path), "/tmp/scriptorioc_study.txt");
+            #endif
+                FILE* f = fopen(tmp_path, "w");
+                if (f)
+                {
+                    int idx = find_study_by_id(g_studies, study_edit_id);
+                    if (idx >= 0)
+                        fprintf(f, "%s\n\n", g_studies[idx].title.c_str());
+                    fprintf(f, "%s", study_edit_buf);
+                    fclose(f);
+                }
+            #ifdef _WIN32
+                std::string cmd = "start \"\" \"" + std::string(tmp_path) + "\"";
+            #elif defined(__APPLE__)
+                std::string cmd = "open \"" + std::string(tmp_path) + "\"";
+            #else
+                std::string cmd = "xdg-open \"" + std::string(tmp_path) + "\"";
+            #endif
+                system(cmd.c_str());
+            }
+        }
 
         // Create the main menu
         if (show_menu && ImGui::BeginMainMenuBar())
@@ -1807,6 +1844,13 @@ int main(int, char**)
                         g_data_path = ensure_scrp_extension(fp);
                         save_data_file(g_data_path, g_data_entries, g_studies);
                     }
+                }
+
+                ImGui::Separator();
+
+                if (ImGui::MenuItem("Print Study", "Ctrl+P"))
+                {
+                    g_print_study_requested = true;
                 }
 
                 ImGui::Separator();
