@@ -424,7 +424,7 @@ static int study_edit_id { -1 };
 static int g_rename_id { -1 };
 static char g_rename_buf[256] { "" };
 
-
+static bool g_save_requested { false };
 
 
 
@@ -1606,35 +1606,35 @@ int main(int, char**)
         }
 
         // Key Handlers
-        if (ImGui::IsKeyDown(ImGuiMod_Ctrl) && ImGui::IsKeyDown(ImGuiMod_Alt) && ImGui::IsKeyPressed(ImGuiKey_I))
+        if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiMod_Alt | ImGuiKey_I))
         {
             show_demo = !show_demo;
         }
-        if (ImGui::IsKeyDown(ImGuiMod_Ctrl) && ImGui::IsKeyPressed(ImGuiKey_Q))
+        if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_Q))
         {
             glfwSetWindowShouldClose(window, true);
         }
-        if (ImGui::IsKeyDown(ImGuiMod_Ctrl) && ImGui::IsKeyPressed(ImGuiKey_M))
+        if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_M))
         {
             show_menu = !show_menu;
         }
-        if (ImGui::IsKeyDown(ImGuiMod_Ctrl) && ImGui::IsKeyDown(ImGuiMod_Shift) && ImGui::IsKeyPressed(ImGuiKey_F))
+        if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiMod_Shift | ImGuiKey_F))
         {
             show_search = !show_search;
         }
-        if (ImGui::IsKeyDown(ImGuiMod_Ctrl) && !ImGui::IsKeyDown(ImGuiMod_Shift) && ImGui::IsKeyPressed(ImGuiKey_F))
+        if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_F))
         {
             g_find_requested = true;
         }
-        if (ImGui::IsKeyDown(ImGuiMod_Ctrl) && ImGui::IsKeyPressed(ImGuiKey_H))
+        if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_H))
         {
             show_history_dialog = !show_history_dialog;
         }
-        if (ImGui::IsKeyDown(ImGuiMod_Ctrl) && ImGui::IsKeyPressed(ImGuiKey_G))
+        if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_G))
         {
             show_go_to_dialog = true;
         }
-        if (ImGui::IsKeyDown(ImGuiMod_Ctrl) && ImGui::IsKeyPressed(ImGuiKey_N))
+        if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_N))
         {
             flush_note(note_book, note_chapter, note_verse, note_edit_buf);
             const char* fp = tinyfd_saveFileDialog("New Database", g_data_path.c_str(), 1, filters, "Scrp files");
@@ -1652,24 +1652,24 @@ int main(int, char**)
                 save_data_file(g_data_path, g_data_entries, g_studies);
             }
         }
-        if (ImGui::IsKeyDown(ImGuiMod_Ctrl) && ImGui::IsKeyDown(ImGuiMod_Shift) && ImGui::IsKeyPressed(ImGuiKey_N))
+        if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiMod_Shift | ImGuiKey_N))
         {
             show_notes = true;
         }
-        if (ImGui::IsKeyDown(ImGuiMod_Ctrl) && ImGui::IsKeyDown(ImGuiMod_Shift) && ImGui::IsKeyPressed(ImGuiKey_X))
+        if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiMod_Shift | ImGuiKey_X))
         {
             show_notes_explorer = true;
         }
-        if (ImGui::IsKeyDown(ImGuiMod_Ctrl) && ImGui::IsKeyDown(ImGuiMod_Shift) && ImGui::IsKeyPressed(ImGuiKey_U))
+        if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiMod_Shift | ImGuiKey_U))
         {
             show_studies_explorer = true;
         }
-        if (ImGui::IsKeyDown(ImGuiMod_Ctrl) && ImGui::IsKeyDown(ImGuiMod_Shift) && ImGui::IsKeyPressed(ImGuiKey_Y))
+        if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiMod_Shift | ImGuiKey_Y))
         {
             show_study_editor = true;
         }
 
-        if (ImGui::IsKeyDown(ImGuiMod_Ctrl) && ImGui::IsKeyPressed(ImGuiKey_O))
+        if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_O))
         {
             const char* fp = tinyfd_openFileDialog("Open Database", "", 1, filters, "Scrp files", 0);
             if (fp)
@@ -1690,16 +1690,15 @@ int main(int, char**)
                 }
             }
         }
-        if (ImGui::IsKeyDown(ImGuiMod_Ctrl) && ImGui::IsKeyPressed(ImGuiKey_S))
+        if (ImGui::Shortcut(ImGuiMod_Ctrl | ImGuiKey_S, ImGuiInputFlags_RouteAlways))
         {
-            flush_note(note_book, note_chapter, note_verse, note_edit_buf);
-            save_data_file(g_data_path, g_data_entries, g_studies);
+            g_save_requested = true;
         }
-        if (ImGui::IsKeyDown(ImGuiMod_Ctrl) && ImGui::IsKeyDown(ImGuiMod_Shift) && ImGui::IsKeyPressed(ImGuiKey_D))
+        if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiMod_Shift | ImGuiKey_D))
         {
             show_bookmarks_dialog = !show_bookmarks_dialog;
         }
-        if (ImGui::IsKeyDown(ImGuiMod_Ctrl) && !ImGui::IsKeyDown(ImGuiMod_Shift) && ImGui::IsKeyPressed(ImGuiKey_D))
+        if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_D))
         {
             int idx = find_bookmark(g_data_entries, nav_book, nav_chapter, nav_verse);
             if (idx >= 0)
@@ -1719,22 +1718,21 @@ int main(int, char**)
                 g_data_entries.push_back(e);
             }
         }
-        if (ImGui::IsKeyDown(ImGuiMod_Ctrl) && ImGui::IsKeyDown(ImGuiMod_Shift) && ImGui::IsKeyPressed(ImGuiKey_S))
+        if (ImGui::Shortcut(ImGuiMod_Ctrl | ImGuiMod_Shift | ImGuiKey_S, ImGuiInputFlags_RouteAlways))
         {
-            flush_note(note_book, note_chapter, note_verse, note_edit_buf);
             const char* fp = tinyfd_saveFileDialog("Save Database As", g_data_path.c_str(), 1, filters, "Scrp files");
             if (fp)
             {
                 g_data_path = ensure_scrp_extension(fp);
-                save_data_file(g_data_path, g_data_entries, g_studies);
+                g_save_requested = true;
             }
         }
-        if (ImGui::IsKeyDown(ImGuiMod_Ctrl) && ImGui::IsKeyDown(ImGuiMod_Shift) && ImGui::IsKeyPressed(ImGuiKey_C))
+        if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiMod_Shift | ImGuiKey_C))
         {
             g_expand_all = false;
             g_collapse_all = true;
         }
-        if (ImGui::IsKeyDown(ImGuiMod_Ctrl) && ImGui::IsKeyDown(ImGuiMod_Shift) && ImGui::IsKeyPressed(ImGuiKey_E))
+        if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiMod_Shift | ImGuiKey_E))
         {
             g_expand_all = true;
             g_collapse_all = false;
@@ -1832,17 +1830,15 @@ int main(int, char**)
                 }
                 if (ImGui::MenuItem("Save Database", "Ctrl+S"))
                 {
-                    flush_note(note_book, note_chapter, note_verse, note_edit_buf);
-                    save_data_file(g_data_path, g_data_entries, g_studies);
+                    g_save_requested = true;
                 }
                 if (ImGui::MenuItem("Save Database As", "Ctrl+Shift+S"))
                 {
-                    flush_note(note_book, note_chapter, note_verse, note_edit_buf);
                     const char* fp = tinyfd_saveFileDialog("Save Database As", g_data_path.c_str(), 1, filters, "Scrp files");
                     if (fp)
                     {
                         g_data_path = ensure_scrp_extension(fp);
-                        save_data_file(g_data_path, g_data_entries, g_studies);
+                        g_save_requested = true;
                     }
                 }
 
@@ -3329,6 +3325,15 @@ int main(int, char**)
 
         // Clear find request if no editor consumed it
         g_find_requested = false;
+
+        // Deferred save: flush and save after all widgets have rendered and synced their buffers
+        if (g_save_requested)
+        {
+            flush_note(note_book, note_chapter, note_verse, note_edit_buf);
+            flush_study();
+            save_data_file(g_data_path, g_data_entries, g_studies);
+            g_save_requested = false;
+        }
 
         // Rendering
         ImGui::Render();

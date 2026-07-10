@@ -1,0 +1,53 @@
+{
+  "entries": [
+    {
+      "book": 1,
+      "chapter": 1,
+      "content": "dddddd\n\n\n[[https://www.biblegateway.com/]]\n\n[[http://google.com]]a\n\n[[genesis 4:3]]",
+      "created": "2026-05-23 01:36",
+      "modified": "2026-06-06 12:50",
+      "sel_end": -1,
+      "sel_start": -1,
+      "type": "note",
+      "verse": -1
+    },
+    {
+      "book": 1,
+      "chapter": 4,
+      "content": "dddddd\n\n\n[[https://www.biblegateway.com/]]\n\n[[http://google.com]]a\n\n[[genesis 4:3]]",
+      "created": "2026-06-06 02:29",
+      "modified": "2026-06-06 12:49",
+      "sel_end": -1,
+      "sel_start": -1,
+      "type": "note",
+      "verse": 3
+    }
+  ],
+  "studies": [
+    {
+      "content": "",
+      "id": 1,
+      "parent_id": -1,
+      "sort_order": 0,
+      "title": "Science",
+      "type": "folder"
+    },
+    {
+      "content": "",
+      "id": 2,
+      "parent_id": 1,
+      "sort_order": 1,
+      "title": "Time",
+      "type": "folder"
+    },
+    {
+      "content": "Omni\n\n* We believe that God is omnipresent.\n[[Jer 23:24]] -- \"Can a man hide himself in hiding places So I do not see him?\" declares the LORD. \"Do I not fill the heavens and the earth?\" declares the LORD.\n\n* We believe that God is omniscient.\n[[Psa 147:5]] -- Great is our Lord and abundant in strength; His understanding is infinite.\n\n* We believe that God is omnipotent.\n[[Isa 43:13]] -- \"Even from eternity I am He, And there is none who can deliver out of My hand; I act and who can reverse it?\"\n\n\n\nLet's explore just how amazing God is by doing a deep dive into... Time.\n\n\n-- What is Time?\n\n* I am a watch nerd, so I see a lot of articles and videos on 'what time is'.\n* The question of 'what is time' has been something we've struggled with since ancient times.\n* But we're going to go by our contemporary thoughts on time.\n\n\n\n-- Time is Relative\n\n* GPS proves this\n\n\n\n\n-- Time is a dimension\n\n* All of time exists at once.\n\t\t\t\t[[Ecc 3:11]] -- He has made everything appropriate in its time. He has also set eternity in their heart, yet so that man will not find out the work which God has done from the beginning even to the end.\n* Time is like a book.\n\t* The ENTIRE story is present before us.\n\t* We experience it page by page - from the beginning to the end.\n\n\n\nWhy is Time Linear - In One Direction?\n\t* Weird egg / cup analogy.\n\t* Entropy - much better.\n\t\t* A giant clock that has been wound and is unwinding.\n\n* Dropping a mug analogy.\n\n\n-- Choose Your Own Adventure\n\t* Talk about what they are.\n\t* Why this is a bad analogy.\n\n\n-- Swapping books.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nWhat Does the Bible Say About the Nature of Time?\n\n[[Ecc 3:1]] -- There is an appointed time for everything. And there is a time for every event under heaven--\n[[James 4:14]] -- Yet you do not know what your life will be like tomorrow. You are just a vapor that appears for a little while and then vanishes away.\n[[2 Peter 3:8]] -- But do not let this one fact escape your notice, beloved, that with the Lord one day is like a thousand years, and a thousand years like one day.\n[[Gal 4:4]] -- But when the fullness of the time came, God sent forth His Son, born of a woman, born under the Law,\n[[Ecc 8:6]] -- For there is a proper time and procedure for every delight, though a man's trouble is heavy upon him.\n[[Dan 2:21]] -- \"It is He who changes the times and the epochs; He removes kings and establishes kings; He gives wisdom to wise men And knowledge to men of understanding.\n[[John 7:6]] -- So Jesus *said to them, \"My time is not yet here, but your time is always opportune.\n[[Ecc 3:11]] -- He has made everything appropriate in its time. He has also set eternity in their heart, yet so that man will not find out the work which God has done from the beginning even to the end.\n[[Psa 90:4]] -- For a thousand years in Your sight Are like yesterday when it passes by, Or as a watch in the night.\n[[1 Peter 1:20]] -- For He was foreknown before the foundation of the world, but has appeared in these last times for the sake of you\n\nWhat Does the Bible Say About Time Relative to God?\n\n\nWhat Does the Bible Say About Time and Choice?\n\nWhat should our take away be?\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n----\n\nWikipedia\n[[https://en.wikipedia.org/wiki/Time]]\n\nDoes Time Exist?\n[[https://www.sciencefocus.com/science/the-closer-we-look-at-time-the-stranger-it-gets]]\n\n30 Verses About Time\n[[https://biblestudyforyou.com/bible-verses-about-time/]]\n\nGod relative to time\n[[https://www.gotquestions.org/God-time.html]]\n\n\n",
+      "id": 3,
+      "parent_id": 2,
+      "sort_order": 1,
+      "title": "What Does the Bible Say?",
+      "type": "study"
+    }
+  ],
+  "version": 1
+}
