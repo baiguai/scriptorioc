@@ -1,0 +1,14 @@
+{
+  "entries": null,
+  "studies": [
+    {
+      "content": "dddd\ndd\nd\nd\nddddd\n\n\nxxxxxxxx\nxxxxx",
+      "id": 1,
+      "parent_id": -1,
+      "sort_order": 0,
+      "title": "New Study",
+      "type": "study"
+    }
+  ],
+  "version": 1
+}
