@@ -46,6 +46,49 @@ else
     echo -e "${GREEN}==> imgui source found at $IMGUI_DIR${NC}"
 fi
 
+# -----------------------------
+# ImGui patches
+# -----------------------------
+IMGUI_PATCH="$SCRIPT_DIR/patches/imgui-no-escape-revert.patch"
+
+apply_imgui_patch() {
+    if grep -q "ImGuiInputTextFlags_NoEscapeRevert" "$IMGUI_DIR/imgui.h" &&
+       grep -q "ImGuiInputTextFlags_NoEscapeRevert" "$IMGUI_DIR/imgui_widgets.cpp"; then
+        echo -e "${GREEN}==> ImGui Escape-revert patch already applied${NC}"
+        return 0
+    fi
+
+    if [[ ! -f "$IMGUI_PATCH" ]]; then
+        echo -e "${RED}==> Missing patch file: $IMGUI_PATCH${NC}"
+        return 1
+    fi
+
+    echo -e "${YELLOW}==> Applying ImGui Escape-revert patch...${NC}"
+
+    if (cd "$SCRIPT_DIR" && git apply --check "$IMGUI_PATCH") 2>/dev/null; then
+        (cd "$SCRIPT_DIR" && git apply "$IMGUI_PATCH")
+    elif (cd "$SCRIPT_DIR" && patch -p1 --forward < "$IMGUI_PATCH"); then
+        :
+    else
+        echo -e "${RED}==> Failed to apply $IMGUI_PATCH${NC}"
+        echo -e "${RED}==> ImGui may have changed; update the patch in patches/ manually.${NC}"
+        return 1
+    fi
+
+    if ! grep -q "ImGuiInputTextFlags_NoEscapeRevert" "$IMGUI_DIR/imgui.h" ||
+       ! grep -q "ImGuiInputTextFlags_NoEscapeRevert" "$IMGUI_DIR/imgui_widgets.cpp"; then
+        echo -e "${RED}==> Patch applied but expected changes are missing.${NC}"
+        return 1
+    fi
+
+    echo -e "${GREEN}==> ImGui Escape-revert patch applied${NC}"
+}
+
+if ! apply_imgui_patch; then
+    echo -e "${RED}==> Aborting: could not apply required ImGui patch.${NC}"
+    exit 1
+fi
+
 echo -e "${YELLOW}==> Building...${NC}"
 mkdir -p "$BIN_DIR"
 

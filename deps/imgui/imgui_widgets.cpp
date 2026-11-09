@@ -5207,6 +5207,11 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
                     clear_active_id = true;
                 }
             }
+            else if (flags & ImGuiInputTextFlags_NoEscapeRevert)
+            {
+                clear_active_id = true;
+                render_cursor = render_selection = false;
+            }
             else
             {
                 clear_active_id = revert_edit = true;

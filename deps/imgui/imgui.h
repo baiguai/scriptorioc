@@ -1341,6 +1341,9 @@ enum ImGuiInputTextFlags_
     //   The CPU cost is very roughly proportional to text length, so a 10 KB buffer should cost about ten times less.
     ImGuiInputTextFlags_WordWrap            = 1 << 24,  // InputTextMultiline(): word-wrap lines that are too long.
 
+    // Escape behavior
+    ImGuiInputTextFlags_NoEscapeRevert      = 1 << 25,  // Escape key deactivates the field without reverting the buffer to its contents at the time of focus.
+
     // Obsolete names
     //ImGuiInputTextFlags_AlwaysInsertMode  = ImGuiInputTextFlags_AlwaysOverwrite   // [renamed in 1.82] name was not matching behavior
 };
