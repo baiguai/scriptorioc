@@ -2472,7 +2472,7 @@ int main(int, char**)
 
                 render_find_bar(note_edit_buf, (int)sizeof(note_edit_buf), 0);
 
-                static ImGuiInputTextFlags notes_flags = ImGuiInputTextFlags_AllowTabInput;
+                static ImGuiInputTextFlags notes_flags = ImGuiInputTextFlags_AllowTabInput | ImGuiInputTextFlags_NoEscapeRevert;
                 ImGui::InputTextMultiline("##note", note_edit_buf, sizeof(note_edit_buf),
                     ImVec2(-FLT_MIN, -FLT_MIN),
                     notes_flags | ImGuiInputTextFlags_CallbackAlways,
@@ -2867,7 +2867,7 @@ int main(int, char**)
 
             render_find_bar(study_edit_buf, (int)sizeof(study_edit_buf), 1);
 
-            static ImGuiInputTextFlags study_flags = ImGuiInputTextFlags_AllowTabInput;
+            static ImGuiInputTextFlags study_flags = ImGuiInputTextFlags_AllowTabInput | ImGuiInputTextFlags_NoEscapeRevert;
             ImGui::InputTextMultiline("##study", study_edit_buf, sizeof(study_edit_buf),
                 ImVec2(-FLT_MIN, -FLT_MIN),
                 study_flags | ImGuiInputTextFlags_CallbackAlways,

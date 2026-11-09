@@ -230,6 +230,28 @@
                 textarea#editorArea.visual-mode {
                     caret-color: var(--vim-cursor);
                 }
+                textarea#editorArea.visual-block-mode {
+                    caret-color: var(--vim-cursor);
+                }
+                .editor {
+                    position: relative;
+                }
+                #blockOverlay {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    pointer-events: none;
+                    overflow: hidden;
+                    z-index: 5;
+                }
+                #blockOverlay .block-hl {
+                    position: absolute;
+                    background: var(--sel-bg);
+                    opacity: 0.6;
+                    border-radius: 2px;
+                }
                 .footer { border-top: 1px solid var(--border); padding: 6px 10px; color: var(--muted); }
 
                 .dim { color: var(--muted); }
@@ -351,6 +373,36 @@
                     font-family: monospace;
                     overflow-y: auto;
                     box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+                }
+                #tagsDialog {
+                    display: none;
+                    position: fixed;
+                    top: 10%;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    width: 400px;
+                    max-width: 90vw;
+                    max-height: 70%;
+                    background: var(--bg);
+                    color: var(--fg);
+                    border: 2px solid var(--border);
+                    border-radius: var(--border-radius);
+                    padding: 20px;
+                    z-index: 9999;
+                    font-family: monospace;
+                    overflow-y: auto;
+                    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+                }
+                #tagsList div {
+                    padding: 5px 6px;
+                    font-size: 0.9rem;
+                    cursor: pointer;
+                }
+                #tagsList div.selected {
+                    background: var(--sel-bg);
+                }
+                #tagsDialog h3 {
+                    margin-top: 0;
                 }
                 #linksDialog h3 {
                     margin-top: 0;
@@ -661,6 +713,14 @@
                 ::-webkit-scrollbar-track { background: var(--bg); }
 
                 /* Grid backgrounds */
+
+                /* Theme Editor rows */
+                .te-row { display:flex; align-items:center; gap:8px; padding:3px 12px; cursor:pointer; user-select:none; }
+                .te-row:hover { background: var(--sel-bg); }
+                .te-row.te-selected { background: var(--sel-bg); outline: 1px dashed var(--border); }
+                .te-row.te-active .te-name { color: var(--accent); }
+                .te-row .te-active-dot { display:none; width:6px; height:6px; border-radius:50%; background:var(--accent); flex-shrink:0; }
+                .te-row.te-active .te-active-dot { display:inline-block; }
             </style>
 <!-- End Styles -->
 </head>
@@ -746,10 +806,9 @@
             </div>
 
             <div class="search-dialog" id="helpDialogUnified" style="display:none;">
-              <input id="helpFilter" type="text" placeholder="Filter help (Start with : to search keys only, !r for regex cheatsheet)...">
-              <div id="helpResults" class="search-results"></div>
-              <p><a href="https://scribboleth.infinityfreeapp.com/" target="_blank">Full Help System</a></p>
-              <p style="margin-top:6px;">Press ESC to close.</p>
+                <input id="helpFilter" type="text" placeholder="Filter help (Start with : to search keys only, !r for regex cheatsheet)...">
+                <div id="helpResults" class="search-results"></div>
+                <p><a href="https://scribboleth.infinityfreeapp.com/" target="_blank">Full Help System</a></p>
             </div>
 
             <div id="linksDialog" ondblclick="closeLinksDialog();" style="display: none;">
@@ -760,12 +819,12 @@
             <div id="marksDialog" style="display: none;">
                 <h3>Bookmarks</h3>
                 <div id="marksList"></div>
-                <p>
-                    <br>
-                    Press Esc to close
-                    <br>
-                    Press d to delete a bookmark
-                </p>
+            </div>
+
+            <div id="tagsDialog" style="display: none;">
+                <h3>Tags</h3>
+                <div id="tagsList"></div>
+                <p style="color:var(--dim); font-size:0.9em; margin-bottom:0;">↑↓ j/k Navigate • Enter Insert • Esc Cancel</p>
             </div>
 
             <div id="replaceDialog" style="display: none;">
@@ -821,6 +880,39 @@
                 <p style="color:var(--dim); font-size:0.9em;">↑↓ Navigate • Enter Apply • Esc Cancel</p>
             </div>
 
+            <div id="themeEditorDialog" style="display:none;position:fixed;top:5%;left:50%;transform:translateX(-50%);width:580px;max-width:95vw;max-height:85vh;background:var(--bg);color:var(--fg);border:2px solid var(--border);border-radius:var(--border-radius);z-index:9999;font-family:monospace;box-shadow:0 0 20px rgba(0,0,0,0.8);flex-direction:column;overflow:hidden;">
+                <div id="themeEditorListView" style="display:flex;flex-direction:column;overflow:hidden;min-height:0;">
+                    <h3 style="margin:0;padding:12px 16px 8px;border-bottom:1px solid var(--border);flex-shrink:0;">Theme Editor</h3>
+                    <div id="themeEditorList" style="flex:1 1 auto;overflow-y:auto;min-height:0;padding:4px 0;"></div>
+                    <div style="flex-shrink:0;padding:8px 16px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:center;">
+                        <button id="themeEditorAddBtn">+ Add Theme</button>
+                        <button id="themeEditorImportBtn">Import JSON</button>
+                        <button id="themeEditorExportBtn">Export JSON</button>
+                        <span style="flex:1;"></span>
+                        <button id="themeEditorCloseBtn">Close</button>
+                    </div>
+                    <div style="flex-shrink:0;padding:4px 16px 8px;color:var(--dim);font-size:0.85em;">e Edit • d Delete • a Add • Enter Preview</div>
+                </div>
+                <div id="themeEditorEditView" style="display:none;flex-direction:column;overflow:hidden;min-height:0;">
+                    <h3 id="themeEditorEditTitle" style="margin:0;padding:12px 16px 8px;border-bottom:1px solid var(--border);flex-shrink:0;">Edit Theme</h3>
+                    <div style="flex:1 1 auto;overflow-y:auto;min-height:0;padding:12px 16px;">
+                        <label style="display:block;margin-bottom:8px;">Name: <input id="teName" type="text" style="background:var(--sel-bg);color:var(--fg);border:1px solid var(--btn-border);font-family:inherit;width:260px;padding:4px;"></label>
+                        <div id="themeEditorColorGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;"></div>
+                        <div style="margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;">
+                            <label>Border Radius: <input id="te_border-radius" type="text" style="background:var(--sel-bg);color:var(--fg);border:1px solid var(--btn-border);font-family:inherit;width:80px;padding:4px;"></label>
+                            <label>Pill Radius: <input id="te_pill-radius" type="text" style="background:var(--sel-bg);color:var(--fg);border:1px solid var(--btn-border);font-family:inherit;width:80px;padding:4px;"></label>
+                        </div>
+                        <label style="display:block;margin-top:8px;"><input type="checkbox" id="te_grid"> Enable Grid Background</label>
+                        <label style="display:block;margin-top:4px;">Grid Color: <input id="te_grid-color" type="color" style="vertical-align:middle;width:40px;height:24px;border:none;background:none;"></label>
+                        <div style="margin-top:4px;"><span style="font-size:0.85em;color:var(--dim);">Preview:</span> <button id="themeEditorPreviewBtn" style="padding:2px 8px;">Apply to App</button></div>
+                    </div>
+                    <div style="flex-shrink:0;padding:8px 16px;border-top:1px solid var(--border);display:flex;gap:8px;">
+                        <button id="themeEditorSaveBtn">Save Theme</button>
+                        <button id="themeEditorCancelBtn">Cancel</button>
+                    </div>
+                </div>
+            </div>
+            <input type="file" id="themeEditorFilePicker" accept=".json" style="display:none;">
 
             <aside class="tree" id="tree" onclick="closeDialogs(); activateTree();"><ul></ul></aside>
             <section class="editor">
@@ -831,6 +923,7 @@
                     <span class="pill" id="msg"></span>
                 </div>
                 <textarea id="editorArea" spellcheck="false" readonly="readonly"></textarea>
+                <div id="blockOverlay"></div>
             </section>
             </div>
 
@@ -1097,19 +1190,22 @@
             let importedFileName = null;
 
             let fileName = "scriptorioc_help";
-            let curVersion = "1.0.11"
+            let curVersion = "1.0.13"
             let showInitHelp = false;
             let headerTemplate = "__| ^*^ |__";
             let selectedId = null;
             let editing = false;
             let showingLinks = false;
             let showingMarks = false;
+            let showingTags = false;
+            let tagsList = [];
+            let tagsIndex = 0;
             let showingHelp = false;
             let currentTheme = null;
             let themes = [
                 { name: "default-theme", bg: "#000000", fg: "#f5f5f5", muted: "#555555", accent: "#00d1b2", danger: "#ff5577", "sel-bg": "#111827", "btn-border": "#555555", border: "#222222", "input-bg": "#111827", "input-fg": "#f5f5f5", "btn-bg": "#111827", "btn-fg": "#f5f5f5", dim: "#555555", "border-radius": "8px", "pill-radius": "999px", "vim-cursor": "#00b894", "insert-cursor": "#00d1b2" },
                 { name: "default-with-grid", bg: "#000000", fg: "#c0c0c0", muted: "#404040", accent: "#00d1b2", danger: "#ff5577", "sel-bg": "#1a1a1a", "btn-border": "#333333", border: "#222222", "input-bg": "#111111", "input-fg": "#c0c0c0", "btn-bg": "#111111", "btn-fg": "#c0c0c0", dim: "#404040", "border-radius": "8px", "pill-radius": "999px", "vim-cursor": "#00b894", "insert-cursor": "#00d1b2", grid: true, "grid-color": "#111111" },
-                { name: "blued", bg: "#000000", fg: "#d5e5ff", muted: "#555555", accent: "#00d1b2", danger: "#ff5577", "sel-bg": "#111827", "btn-border": "#555555", border: "#222222", "input-bg": "#111827", "input-fg": "#d5e5ff", "btn-bg": "#111827", "btn-fg": "#d5e5ff", dim: "#555555", "border-radius": "8px", "pill-radius": "999px", "vim-cursor": "#1f4676", "insert-cursor": "#b8e3ff" },
+                { name: "blued", bg: "#000000", fg: "#d5e5ff", muted: "#555555", accent: "#00d1b2", danger: "#ff5577", "sel-bg": "#111827", "btn-border": "#555555", border: "#222222", "input-bg": "#111827", "input-fg": "#d5e5ff", "btn-bg": "#111827", "btn-fg": "#d5e5ff", dim: "#555555", "border-radius": "4px", "pill-radius": "0px", "vim-cursor": "#1f4676", "insert-cursor": "#b8e3ff" },
                 { name: "dim-console", bg: "#000000", fg: "#888888", muted: "#444444", accent: "#888888", danger: "#888888", "sel-bg": "#000000", "btn-border": "#333333", border: "#111111", "input-bg": "#000000", "input-fg": "#888888", "btn-bg": "#111111", "btn-fg": "#888888", dim: "#444444", "border-radius": "0px", "pill-radius": "0px", "vim-cursor": "#333333", "insert-cursor": "#888888" },
                 { name: "monokai-theme", bg: "#0f0f0f", fg: "#f0f0f0", muted: "#888888", accent: "#00bfff", danger: "#ff4444", "sel-bg": "#1a1a1a", "btn-border": "#666666", border: "#2a2a2a", "input-bg": "#1a1a1a", "input-fg": "#f0f0f0", "btn-bg": "#1a1a1a", "btn-fg": "#f0f0f0", dim: "#888888", "border-radius": "4px", "pill-radius": "4px", "vim-cursor": "#d0d0d0", "insert-cursor": "#00bfff" },
                 { name: "monokai-pro-theme", bg: "#2d2d2d", fg: "#f2f2e0", muted: "#727272", accent: "#ffa044", danger: "#ff6b6b", "sel-bg": "#3d3d3d", "btn-border": "#555555", border: "#494949", "input-bg": "#3d3d3d", "input-fg": "#f2f2e0", "btn-bg": "#3d3d3d", "btn-fg": "#f2f2e0", dim: "#727272", "border-radius": "4px", "pill-radius": "4px", "vim-cursor": "#f2f2e0", "insert-cursor": "#ffa044" },
@@ -1219,9 +1315,15 @@
             let mode_deleting = false;
             let mode_visual = false;
             let mode_visual_line = false;
+            let mode_visual_block = false;
             let mode_select_in = false;
             let visual_start = 0;
             let visual_end = 0;
+            let visual_block_anchor = 0;
+            let block_insert_pending = false;
+            let block_insert_rows = [];
+            let block_insert_left_col = 0;
+            let block_insert_start_pos = 0;
             let vim_clipboard = '';
             let mode_replacing = false;
             let macros = {};
@@ -1242,8 +1344,8 @@
             let searchIndex = 0;
             let tagSearchPhase = 'tags';
             let matchingTags = [];
-            let peekActive = false;
-            let peekSavedId = null;
+            let collectResultsMode = false;
+            let collectResultsAsChild = false;
             const helpDialog = document.getElementById('helpDialog');
             const helpDialogVimEdit = document.getElementById('helpDialogVimEdit');
             const helpDialogVimDisabled = document.getElementById('helpDialogVimDisabled');
@@ -1274,6 +1376,11 @@
             let linksCount = 0;
             let themeIndex = 0;
             let previewTheme = null;
+            let themeEditorIndex = 0;
+            let themeEditorMode = 'list';
+            let themeEditorOriginalIndex = -1;
+            let themeEditorIsNew = false;
+            let themeEditorKeyHandler = null;
             let findMatches = [];
             let currentFindIndex = -1;
 
@@ -1300,8 +1407,8 @@
                     { key: "N", mode: "TREE", description: "Toggle tree visibility" },
                     { key: "]", mode: "TREE", description: "Expand the treeview panel" },
                     { key: "[", mode: "TREE", description: "Shrink the treeview panel" },
-                    { key: "/", mode: "TREE", description: "Search (begin with : labels, r: regex, # tags, +: all words comma sep)" },
-                    { key: "\\", mode: "TREE", description: "Peek search (search results replace treeview)" },
+                    { key: "/", mode: "TREE", description: "Search (begin with : labels, r: regex, # tags, +: all words space sep)" },
+                    { key: "\\", mode: "TREE", description: "Search, then create a root node with links to all results" },
                     { key: "f", mode: "TREE", description: "Find text in the current note " },
                     { key: "#", mode: "TREE", description: "Show note links dialog" },
                     { key: "<", mode: "TREE", description: "Show the history dialog" },
@@ -1311,7 +1418,6 @@
                     { key: "T", mode: "TREE", description: "Export current tree branch as .txt" },
                     { key: "m", mode: "TREE", description: "Bookmark current node" },
                     { key: "`", mode: "TREE", description: "Show bookmarks" },
-                    { key: "%", mode: "TREE", description: "Import theme file" },
                     { key: "!", mode: "TREE", description: "Display options dialog" },
 
                     { key: "a", mode: "NORMAL", description: "Enter insert mode, where you can write text normally" },
@@ -1337,7 +1443,6 @@
                     { key: "x", mode: "NORMAL", description: "Delete the character under the cursor" },
                     { key: "r", mode: "NORMAL", description: "Replace the character under the cursor" },
                     { key: "u", mode: "NORMAL", description: "Undo last change" },
-                    { key: "Ctrl+r", mode: "NORMAL", description: "Redo last undone change" },
 
                     { key: "y", mode: "VISUAL", description: "Copy the selected text" },
                     { key: "x", mode: "VISUAL", description: "Cut the selected text" },
@@ -1372,8 +1477,8 @@
                     { key: "D", mode: "TREE", description: "Delete the current node" },
                     { key: "i", mode: "TREE", description: "Edit current note" },
                     { key: "I", mode: "TREE", description: "Edit current note" },
-                    { key: "/", mode: "TREE", description: "Search (begin with : labels, r: regex, # tags, +: all words comma sep)" },
-                    { key: "\\", mode: "TREE", description: "Peek search (search results replace treeview)" },
+                    { key: "/", mode: "TREE", description: "Search (begin with : labels, r: regex, # tags, +: all words space sep)" },
+                    { key: "\\", mode: "TREE", description: "Search, then create a root node with links to all results" },
                     { key: "f", mode: "TREE", description: "Find/Replace text in the current note " },
                     { key: "#", mode: "TREE", description: "Show note links dialog" },
                     { key: "<", mode: "TREE", description: "Show the history dialog" },
@@ -1387,6 +1492,7 @@
                     { key: "m", mode: "TREE", description: "Bookmark current node" },
                     { key: "`", mode: "TREE", description: "Show bookmarks" },
                     { key: "%", mode: "TREE", description: "Import theme file" },
+                    { key: "5", mode: "TREE", description: "Edit themes" },
                     { key: "!", mode: "TREE", description: "Display options dialog" },
                     { key: "v", mode: "TREE", description: "Display version dialog" },
 
@@ -1395,6 +1501,7 @@
                     { key: "Control+\\", mode: "INSERT", description: "Wrap selected text" },
                     { key: "Control+;", mode: "INSERT", description: "Create/Update table" },
                     { key: "Control+'", mode: "INSERT", description: "Insert Link" },
+                    { key: "Control+3", mode: "INSERT", description: "Show all tags dialog" },
                 ];
                 
                 let helpVimEnabled = [
@@ -1408,6 +1515,7 @@
                     { key: "K", mode: "NORMAL", description: "Move current line up" },
                     { key: "l", mode: "NORMAL", description: "Move cursor right" },
                     { key: "w", mode: "NORMAL", description: "Move to next word" },
+                    { key: "e", mode: "NORMAL", description: "Move to end of word" },
                     { key: "b", mode: "NORMAL", description: "Move to previous word" },
                     { key: "0", mode: "NORMAL", description: "Move to start of line" },
                     { key: "$", mode: "NORMAL", description: "Move to end of line" },
@@ -1422,12 +1530,12 @@
                     { key: "O", mode: "NORMAL", description: "Open new line above" },
                     { key: "dd", mode: "NORMAL", description: "Delete current line" },
                     { key: "dw", mode: "NORMAL", description: "Delete word" },
+                    { key: "de", mode: "NORMAL", description: "Delete to end of word" },
                     { key: "x", mode: "NORMAL", description: "Delete character" },
                     { key: "p", mode: "NORMAL", description: "Paste after cursor" },
                     { key: "P", mode: "NORMAL", description: "Paste before cursor" },
                     { key: "u", mode: "NORMAL", description: "Undo last change" },
                     { key: "r", mode: "NORMAL", description: "Replace character under cursor" },
-                    { key: "Ctrl+r", mode: "NORMAL", description: "Redo last undone change" },
                     { key: "q", mode: "NORMAL", description: "Record macro (follow with a letter to store)" },
                     { key: "q", mode: "NORMAL", description: "Stop recording macro (when already recording)" },
                     { key: "@", mode: "NORMAL", description: "Play back macro (follow with the macro letter)" },
@@ -1437,6 +1545,9 @@
                     { key: "yy", mode: "NORMAL", description: "Copy current line" },
                     { key: "v", mode: "NORMAL", description: "Enter VISUAL mode" },
                     { key: "V", mode: "NORMAL", description: "Enter VISUAL LINE mode" },
+                    { key: "Control+v", mode: "NORMAL", description: "Enter VISUAL BLOCK mode" },
+                    { key: "Control+l", mode: "NORMAL", description: "Open the link under the cursor" },
+                    { key: "\\", mode: "NORMAL", description: "Search, then create a child node with links to all results" },
                     { key: "v,i,w", mode: "NORMAL", description: "Select the word at cursor" },
                     { key: "d,i,w", mode: "NORMAL", description: "Delete the word at cursor" },
                     { key: "Escape", mode: "VISUAL", description: "Exit to NORMAL mode" },
@@ -1445,6 +1556,7 @@
                     { key: "k", mode: "VISUAL", description: "Extend selection up" },
                     { key: "l", mode: "VISUAL", description: "Extend selection right" },
                     { key: "w", mode: "VISUAL", description: "Extend to next word" },
+                    { key: "e", mode: "VISUAL", description: "Extend to end of word" },
                     { key: "b", mode: "VISUAL", description: "Extend to previous word" },
                     { key: "i", mode: "VISUAL", description: "Prepare for inner object (follow with w for word)" },
                     { key: "d", mode: "VISUAL", description: "Delete selection" },
@@ -1452,8 +1564,28 @@
                     { key: "y", mode: "VISUAL", description: "Copy selection" },
                     { key: "U", mode: "VISUAL", description: "Convert to uppercase" },
                     { key: "u", mode: "VISUAL", description: "Convert to lowercase" },
+                    { key: "*", mode: "VISUAL LINE", description: "Add bullet prefix to selected lines" },
+                    { key: "#", mode: "VISUAL LINE", description: "Number selected lines" },
                     { key: "Control+#", mode: "VISUAL", description: "Order numbered list" },
                     { key: "Control+;", mode: "VISUAL", description: "Create/Update table" },
+                    { key: "Escape", mode: "VISUAL BLOCK", description: "Exit to NORMAL mode" },
+                    { key: "h", mode: "VISUAL BLOCK", description: "Shrink block left" },
+                    { key: "l", mode: "VISUAL BLOCK", description: "Expand block right" },
+                    { key: "j", mode: "VISUAL BLOCK", description: "Expand block down" },
+                    { key: "k", mode: "VISUAL BLOCK", description: "Expand block up" },
+                    { key: "w", mode: "VISUAL BLOCK", description: "Extend to next word" },
+                    { key: "b", mode: "VISUAL BLOCK", description: "Extend to previous word" },
+                    { key: "e", mode: "VISUAL BLOCK", description: "Extend to end of word" },
+                    { key: "I", mode: "VISUAL BLOCK", description: "Insert text at left edge of each row" },
+                    { key: "A", mode: "VISUAL BLOCK", description: "Append text at right edge of each row" },
+                    { key: "c", mode: "VISUAL BLOCK", description: "Change block (delete + insert)" },
+                    { key: "d", mode: "VISUAL BLOCK", description: "Delete block" },
+                    { key: "x", mode: "VISUAL BLOCK", description: "Cut block" },
+                    { key: "y", mode: "VISUAL BLOCK", description: "Yank block" },
+                    { key: "U", mode: "VISUAL BLOCK", description: "Convert block to uppercase" },
+                    { key: "u", mode: "VISUAL BLOCK", description: "Convert block to lowercase" },
+                    { key: "v", mode: "VISUAL BLOCK", description: "Switch to VISUAL mode" },
+                    { key: "V", mode: "VISUAL BLOCK", description: "Switch to VISUAL LINE mode" },
                     { key: "Escape", mode: "INSERT", description: "Exit to NORMAL mode" },
                     { key: "<number>", mode: "NORMAL", description: "If you enter a number first, some commands will repeat that many times." }
                 ];
@@ -1676,11 +1808,14 @@
 
                     if (editing) {
                         // Remove all cursor mode classes first
-                        editorArea.classList.remove('insert-mode', 'normal-mode', 'visual-mode');
+                        editorArea.classList.remove('insert-mode', 'normal-mode', 'visual-mode', 'visual-block-mode');
                         
                         if (mode_insert) {
                             modeEl.textContent = 'INSERT';
                             editorArea.classList.add('insert-mode');
+                        } else if (mode_visual_block) {
+                            modeEl.textContent = 'VISUAL BLOCK';
+                            editorArea.classList.add('visual-block-mode');
                         } else if (mode_visual) {
                             modeEl.textContent = mode_visual_line ? 'VISUAL LINE' : 'VISUAL';
                             editorArea.classList.add('visual-mode');
@@ -1691,7 +1826,7 @@
                     } else {
                         modeEl.textContent = 'TREE';
                         // In TREE mode, remove all cursor mode classes
-                        editorArea.classList.remove('insert-mode', 'normal-mode', 'visual-mode');
+                        editorArea.classList.remove('insert-mode', 'normal-mode', 'visual-mode', 'visual-block-mode');
                     }
 
                     if (selectedId) recordHistory(selectedId);
@@ -1710,19 +1845,22 @@
                     scheduleAutoSave();
                 });
 
-                editorArea.addEventListener('click', () => {
+                editorArea.addEventListener('click', (e) => {
                     if (!readOnly) {
-                        setVimMode(true); // This will set the correct cursor style
-                        editing = true;
-                        render();
+                        setVimMode(true);
+                        if (!editing) {
+                            editing = true;
+                            render();
+                        }
                     }
-
-                    // Close dialogs - this is for mobile envs
                     closeDialogs();
-
                     editorArea.focus();
-                    // editorArea.setSelectionRange(0, 0); 
-                    // scrollToCursor();
+                });
+
+                editorArea.addEventListener('dblclick', (e) => {
+                    if (readOnly) return;
+                    if (!openLinkAtCursor()) return;
+                    e.preventDefault();
                 });
 
                 function syncFile() {
@@ -1899,26 +2037,6 @@
                     }
                 }
 
-                function doRedo() {
-                    if (redoStack.length === 0) {
-                        showMessage("Already at newest change");
-                        return;
-                    }
-
-                    const currentState = {
-                        content: editorArea.value,
-                        selectionStart: editorArea.selectionStart,
-                        selectionEnd: editorArea.selectionEnd,
-                    };
-                    undoStack.push(currentState);
-
-                    const nextState = redoStack.pop();
-                    editorArea.value = nextState.content;
-                    editorArea.selectionStart = nextState.selectionStart;
-                    editorArea.selectionEnd = nextState.selectionEnd;
-                    syncFile();
-                }
-
                 function safeStoreText(text) {
                     if (!text) return "";
                     for (const [raw, safe] of Object.entries(SAFE_MAP)) {
@@ -1939,6 +2057,15 @@
 
                 editorArea.addEventListener('blur', (e) => {
                     syncFile();
+                });
+
+                editorArea.addEventListener('scroll', () => {
+                    if (mode_visual_block) updateBlockOverlay();
+                });
+
+                window.addEventListener('resize', () => {
+                    _charWidthCache = 0;
+                    if (mode_visual_block) updateBlockOverlay();
                 });
 
         //---- Dialog Functions ------------------------------------------------
@@ -2055,6 +2182,9 @@
                 if (marksDialog.style.display === "block") {
                     openDialog = true;
                 }
+                if (document.getElementById('tagsDialog').style.display === "block") {
+                    openDialog = true;
+                }
                 if (historyDialog.style.display === "block") {
                     openDialog = true;
                 }
@@ -2065,6 +2195,9 @@
                     openDialog = true;
                 }
                 if (document.getElementById('themePickerDialog').style.display === "flex") {
+                    openDialog = true;
+                }
+                if (document.getElementById('themeEditorDialog').style.display === "flex") {
                     openDialog = true;
                 }
 
@@ -2243,6 +2376,38 @@
 
                         let currentRunClass = charClass(text[pos]);
                         while (pos > 0 && charClass(text[pos-1]) === currentRunClass) pos--;
+                    }
+                }
+
+                if (mode_visual) {
+                    visual_end = pos;
+                    updateVisualSelection();
+                } else {
+                    editorArea.selectionStart = editorArea.selectionEnd = pos;
+                }
+            }
+
+            function moveSpace() {
+                const text = editorArea.value;
+                let pos;
+                let startPos;
+
+                if (mode_visual) {
+                    pos = visual_end;
+                } else {
+                    pos = editorArea.selectionStart;
+                }
+                startPos = pos;
+
+                if (pos < text.length) {
+                    if (/\s/.test(text[pos])) {
+                        while (pos < text.length && /\s/.test(text[pos])) pos++;
+                    }
+                    if (pos < text.length && !/\s/.test(text[pos])) {
+                        while (pos < text.length && !/\s/.test(text[pos])) pos++;
+                        // pos--;
+                    } else {
+                        pos = startPos;
                     }
                 }
 
@@ -2483,12 +2648,6 @@
         //---- Key Bindings ----------------------------------------------------
             // ---- VIM Keys -------------------------------------------------------
                 function vimKeys(e) {
-                    if (e.ctrlKey && e.key === 'r') {
-                        e.preventDefault();
-                        doRedo();
-                        return;
-                    }
-
                     if (macro_waiting_letter) {
                         e.preventDefault();
                         const letter = e.key;
@@ -2542,6 +2701,13 @@
                         }
                     }
 
+                    if (mode_visual_block) {
+                        let blockProcessed = visualBlockKeys(e);
+                        if (blockProcessed) {
+                            return;
+                        }
+                    }
+
                     e.preventDefault();
                 
                     // Normal mode logic
@@ -2564,7 +2730,7 @@
                     if (e.key !== 'g') {
                         mode_going = false;
                     }
-                    if (e.key !== 'd' && e.key !== 'w' && e.key !== 'W' && e.key !== 'b' && e.key !== 'B' && e.key !== 'i') {
+                    if (e.key !== 'd' && e.key !== 'w' && e.key !== 'W' && e.key !== 'b' && e.key !== 'B' && e.key !== 'i' && e.key !== 'e') {
                         mode_deleting = false;
                         mode_select_in = false;
                     }
@@ -2603,10 +2769,10 @@
 
                     //---- These are the keys to be processed when in NORMAL mode ------
                     switch (e.key) {
-                        case "s": saveAsHtml(fileName); break;
-                        case "S": openSaveAsDialog(); break;
+                        case 's': saveAsHtml(fileName); break;
+                        case 'S': openSaveAsDialog(); break;
 
-                        case "i": // Enter insert mode (or inner-text-object when deleting)
+                        case 'i': // Enter insert mode (or inner-text-object when deleting)
                             if (mode_deleting) {
                                 mode_select_in = true;
                                 e.preventDefault();
@@ -2622,67 +2788,80 @@
                             performed = true;
                             modeEl.textContent = 'INSERT';
                             break;
-                        case "a":
+                        case 'a':
                             setVimMode(true);
                             mode_insert = true;
                             performed = true;
                             modeEl.textContent = 'INSERT';
                             break;
-                        case "h": // Move left
+                        case '\\':
+                            openSearch();
+                            collectResultsMode = true;
+                            collectResultsAsChild = true;
+                            performed = true;
+                            break;
+                        case 'h': // Move left
                             let newPosBack = Math.max(0, editorArea.selectionStart - mode_repeat);
                             moveChar(newPosBack, true);
                             performed = true;
                             break;
-                        case "l": // Move right
+                        case 'l': // Move right, or open the link at the cursor (Ctrl+l)
+                            if ((e.ctrlKey || e.metaKey) && !mode_visual && !mode_visual_block) {
+                                if (!openLinkAtCursor()) {
+                                    showMessage("No link at cursor");
+                                }
+                                performed = true;
+                                break;
+                            }
                             let newPosFwd = Math.min(editorArea.value.length, editorArea.selectionStart + mode_repeat);
                             moveChar(newPosFwd, false);
                             performed = true;
                             break;
-                        case "j": // Move down lines
+                        case 'j': // Move down lines
                             for (let i = 0; i < mode_repeat; i++) moveCursorVertical(1);
                             performed = true;
                             break;
-                        case "k": // Move up lines
+                        case 'k': // Move up lines
                             for (let i = 0; i < mode_repeat; i++) moveCursorVertical(-1);
                             performed = true;
                             break;
-                        case "K": // Move current line up
+                        case 'K': // Move current line up
                             moveLineUp();
                             performed = true;
                             break;
-                        case "J": // Move current line down
+                        case 'J': // Move current line down
                             moveLineDown();
                             performed = true;
                             break;
-                        case "0": // Jump to beginning of line
+                        case '0': // Jump to beginning of line
                             const before0 = editorArea.value.lastIndexOf("\n", editorArea.selectionStart - 1);
                             let moveStart = editorArea.selectionEnd = (before0 === -1 ? 0 : before0 + 1);
                             moveChar(moveStart, false);
                             performed = true;
                             break;
-                        case "$": // Jump to end of line
+                        case '$': // Jump to end of line
                             const after$ = editorArea.value.indexOf("\n", editorArea.selectionStart);
                             let moveEnd = editorArea.selectionEnd = (after$ === -1 ? editorArea.value.length : after$);
                             moveChar(moveEnd, false);
                             performed = true;
                             break;
-                        case "u":
+                        case 'u':
                             doUndo();
                             performed = true;
                             break;
-                        case "r":
+                        case 'r':
                             mode_replacing = true;
                             // Does not set performed to true, waits for next key
                             break;
-                        case "v": // Enter visual mode
+                        case 'v': // Enter visual mode
                             enterVisualMode(false);
                             performed = true;
                             break;
-                        case "V": // Enter visual line mode
+                        case 'V': // Enter visual line mode
                             enterVisualMode(true);
                             performed = true;
                             break;
-                        case "w": // Forward word(s)
+                        case 'w': // Forward word(s)
                             if (mode_deleting && mode_select_in) {
                                 recordUndoState();
                                 const text = editorArea.value;
@@ -2763,10 +2942,43 @@
                                 performed = true;
                             }
                             break;
-                        case "b": // Backward word(s)
+                        case 'b': // Backward word(s)
                             moveToWordStart();
                             break;
-                        case "x": // Delete character(s) under cursor
+                        case 'e': // Forward to end of word(s)
+                            if (mode_deleting) {
+                                recordUndoState();
+                                const text = editorArea.value;
+                                let endPos = editorArea.selectionStart;
+
+                                for (let i = 0; i < mode_repeat; i++) {
+                                    if (endPos >= text.length) break;
+
+                                    let spaceEnd = endPos;
+                                    if (/\s/.test(text[endPos])) {
+                                        while (spaceEnd < text.length && /\s/.test(text[spaceEnd])) spaceEnd++;
+                                    }
+
+                                    if (spaceEnd < text.length && !/\s/.test(text[spaceEnd])) {
+                                        endPos = spaceEnd;
+                                        while (endPos < text.length && !/\s/.test(text[endPos])) endPos++;
+                                    } else {
+                                        break;
+                                    }
+                                }
+
+                                if (endPos > editorArea.selectionStart) {
+                                    editorArea.setRangeText("", editorArea.selectionStart, endPos, "start");
+                                    syncFile();
+                                }
+                                mode_deleting = false;
+                                performed = true;
+                            } else {
+                                for (let i = 0; i < mode_repeat; i++) moveSpace();
+                                performed = true;
+                            }
+                            break;
+                        case 'x': // Delete character(s) under cursor
                             recordUndoState();
                             const start = editorArea.selectionStart;
                             if (start < editorArea.value.length) {
@@ -2775,7 +2987,7 @@
                             }
                             performed = true;
                             break;
-                        case "g": // Possible gg
+                        case 'g': // Possible gg
                             if (mode_going) {
                                 if (mode_repeat > 1) {
                                     // Go to line N
@@ -2798,7 +3010,7 @@
                                 mode_going = true;
                             }
                             break;
-                        case "D": // Delete to end of line(s)
+                        case 'D': // Delete to end of line(s)
                             recordUndoState();
                             const text = editorArea.value;
                             let startDelEnd = editorArea.selectionStart;
@@ -2813,20 +3025,20 @@
                             syncFile();
                             performed = true;
                             break;
-                        case "d": // Possible dd
+                        case 'd': // Possible dd
                             doDelete();
                             break;
-                        case "G": // End of buffer, or Nth line
+                        case 'G': // End of buffer, or Nth line
                             const bufEnd = editorArea.selectionEnd = editorArea.value.length;
                             moveChar(bufEnd, false);
                             performed = true;
                             scrollToCursor();
                             break;
-                        case "M": // Bookmark current note and line
+                        case 'M': // Bookmark current note and line
                             setMark(e, getCurrentLineNumber());
                             performed = true;
                             break;
-                        case "H": // Replace current line with header template
+                        case 'H': // Replace current line with header template
                             recordUndoState();
                             const textH = editorArea.value;
                             const posH = editorArea.selectionStart;
@@ -2899,6 +3111,220 @@
                 }
             // ---------------------------------------------------------------------
 
+            // ---- Visual Block Keys ----------------------------------------------
+                function visualBlockKeys(e) {
+                    e.preventDefault();
+
+                    if (block_insert_pending) {
+                        if (e.key === 'Escape') {
+                            e.stopPropagation();
+                            if (!block_insert_rows.length) {
+                                block_insert_pending = false;
+                                syncFile();
+                                setVimMode(false);
+                                exitVisualBlockMode(false);
+                                return true;
+                            }
+                            const insertedText = editorArea.value.substring(
+                                block_insert_start_pos,
+                                editorArea.selectionStart
+                            );
+                            block_insert_pending = false;
+                            recordUndoState();
+
+                            for (let i = block_insert_rows.length - 1; i >= 0; i--) {
+                                const r = block_insert_rows[i];
+                                const insertPos = rowColToPos(r.row, block_insert_left_col);
+                                if (i === 0) continue;
+                                editorArea.setRangeText(insertedText, insertPos, insertPos, 'end');
+                            }
+
+                            syncFile();
+                            setVimMode(false);
+                            exitVisualBlockMode(false);
+                            editorArea.selectionStart = editorArea.selectionEnd = rowColToPos(block_insert_rows[0].row, block_insert_left_col + insertedText.length);
+                            return true;
+                        }
+                        return false;
+                    }
+
+                    switch (e.key) {
+                        case 'Escape':
+                            exitVisualBlockMode();
+                            keyPerformed();
+                            return true;
+
+                        case 'h': {
+                            const pos = editorArea.selectionStart;
+                            const rc = posToRowCol(pos);
+                            if (rc.col > 0) {
+                                editorArea.selectionStart = editorArea.selectionEnd = rowColToPos(rc.row, rc.col - 1);
+                            }
+                            updateBlockOverlay();
+                            keyPerformed();
+                            return true;
+                        }
+
+                        case 'l': {
+                            const pos = editorArea.selectionStart;
+                            const rc = posToRowCol(pos);
+                            const lines = editorArea.value.split('\n');
+                            if (rc.row < lines.length && rc.col < lines[rc.row].length) {
+                                editorArea.selectionStart = editorArea.selectionEnd = rowColToPos(rc.row, rc.col + 1);
+                            }
+                            updateBlockOverlay();
+                            keyPerformed();
+                            return true;
+                        }
+
+                        case 'j': {
+                            for (let i = 0; i < mode_repeat; i++) {
+                                const pos = editorArea.selectionStart;
+                                const text = editorArea.value;
+                                const lineStart = text.lastIndexOf('\n', pos - 1) + 1;
+                                const lineEnd = text.indexOf('\n', pos);
+                                const currentCol = pos - lineStart;
+                                if (lineEnd === -1) break;
+                                const nextLineStart = lineEnd + 1;
+                                const nextLineEnd = text.indexOf('\n', nextLineStart);
+                                const nextLineLen = (nextLineEnd === -1 ? text.length : nextLineEnd) - nextLineStart;
+                                const targetPos = Math.min(nextLineStart + currentCol, nextLineEnd === -1 ? text.length : nextLineEnd);
+                                editorArea.selectionStart = editorArea.selectionEnd = targetPos;
+                            }
+                            updateBlockOverlay();
+                            keyPerformed();
+                            return true;
+                        }
+
+                        case 'k': {
+                            for (let i = 0; i < mode_repeat; i++) {
+                                const pos = editorArea.selectionStart;
+                                const text = editorArea.value;
+                                const lineStart = text.lastIndexOf('\n', pos - 1) + 1;
+                                const currentCol = pos - lineStart;
+                                if (lineStart === 0) break;
+                                const prevLineEnd = lineStart - 1;
+                                const prevLineStart = text.lastIndexOf('\n', prevLineEnd - 1) + 1;
+                                const targetPos = Math.min(prevLineStart + currentCol, prevLineEnd);
+                                editorArea.selectionStart = editorArea.selectionEnd = targetPos;
+                            }
+                            updateBlockOverlay();
+                            keyPerformed();
+                            return true;
+                        }
+
+                        case 'w': {
+                            for (let i = 0; i < mode_repeat; i++) moveWord(1);
+                            updateBlockOverlay();
+                            keyPerformed();
+                            return true;
+                        }
+
+                        case 'b': {
+                            for (let i = 0; i < mode_repeat; i++) moveWord(-1);
+                            updateBlockOverlay();
+                            keyPerformed();
+                            return true;
+                        }
+
+                        case 'e': {
+                            for (let i = 0; i < mode_repeat; i++) moveSpace();
+                            updateBlockOverlay();
+                            keyPerformed();
+                            return true;
+                        }
+
+                        case 'd':
+                            doVisualBlockDelete(e);
+                            return true;
+
+                        case 'x': {
+                            vim_clipboard = getBlockText();
+                            if (vim_clipboard) {
+                                navigator.clipboard.writeText(vim_clipboard).catch(() => {});
+                            }
+                            doVisualBlockDelete(e);
+                            return true;
+                        }
+
+                        case 'y': {
+                            vim_clipboard = getBlockText();
+                            if (vim_clipboard) {
+                                navigator.clipboard.writeText(vim_clipboard).catch(() => {});
+                                showMessage("Block copied to clipboard");
+                            }
+                            exitVisualBlockMode();
+                            keyPerformed();
+                            return true;
+                        }
+
+                        case 'I': {
+                            recordUndoState();
+                            const block = computeBlockRegion();
+                            block_insert_rows = getRowsInBlock();
+                            block_insert_left_col = block.leftCol;
+                            block_insert_pending = true;
+                            const insertPos = rowColToPos(block.topRow, block.leftCol);
+                            block_insert_start_pos = insertPos;
+                            editorArea.selectionStart = editorArea.selectionEnd = insertPos;
+                            setVimMode(true);
+                            return true;
+                        }
+
+                        case 'A': {
+                            recordUndoState();
+                            const blockA = computeBlockRegion();
+                            const linesA = editorArea.value.split('\n');
+                            block_insert_rows = getRowsInBlock();
+                            block_insert_left_col = blockA.rightCol;
+                            block_insert_pending = true;
+                            const firstLine = linesA[blockA.topRow] || '';
+                            const insertPosA = rowColToPos(blockA.topRow, Math.min(blockA.rightCol, firstLine.length));
+                            block_insert_start_pos = insertPosA;
+                            editorArea.selectionStart = editorArea.selectionEnd = insertPosA;
+                            setVimMode(true);
+                            return true;
+                        }
+
+                        case 'c': {
+                            recordUndoState();
+                            const blockC = computeBlockRegion();
+                            block_insert_left_col = blockC.leftCol;
+                            doVisualBlockDelete(e);
+                            block_insert_rows = getRowsInBlock();
+                            block_insert_pending = true;
+                            const insertPosC = rowColToPos(blockC.topRow, blockC.leftCol);
+                            block_insert_start_pos = insertPosC;
+                            editorArea.selectionStart = editorArea.selectionEnd = insertPosC;
+                            setVimMode(true);
+                            return true;
+                        }
+
+                        case 'U':
+                            doVisualBlockUpperCase(e, true);
+                            return true;
+
+                        case 'u':
+                            doVisualBlockUpperCase(e, false);
+                            return true;
+
+                        case 'v':
+                            exitVisualBlockMode(false);
+                            enterVisualMode(false);
+                            keyPerformed();
+                            return true;
+
+                        case 'V':
+                            exitVisualBlockMode(false);
+                            enterVisualMode(true);
+                            keyPerformed();
+                            return true;
+                    }
+
+                    return false;
+                }
+            // ---------------------------------------------------------------------
+
             // ---- Visual Keys ----------------------------------------------------
                 function visualKeys(e) {
                     e.preventDefault();
@@ -2916,45 +3342,63 @@
                     }
                     
                     switch (e.key) {
-                        case "Escape":
+                        case 'Escape':
                             exitVisualMode();
                             return true;
-                        case "h": // Move left and extend selection
+                        case 'h': // Move left and extend selection
                             visual_end = Math.max(0, visual_end - mode_repeat);
                             updateVisualSelection();
                             keyPerformed();
                             return true;
-                        case "l": // Move right and extend selection  
+                        case 'l': // Move right and extend selection  
                             visual_end = Math.min(editorArea.value.length, visual_end + mode_repeat);
                             updateVisualSelection();
                             keyPerformed();
                             return true;
-                        case "j": // Move down
+                        case 'j': // Move down
                             for (let i = 0; i < mode_repeat; i++) moveCursorVertical(1);
                             keyPerformed();
                             return true;
-                        case "k": // Move up
+                        case 'k': // Move up
                             for (let i = 0; i < mode_repeat; i++) moveCursorVertical(-1);
                             keyPerformed();
                             return true;
-                        case "w":
+                        case 'w':
                             for (let i = 0; i < mode_repeat; i++) moveWord(1);
                             keyPerformed();
                             return true;
-                        case "b":
+                        case 'b':
                             for (let i = 0; i < mode_repeat; i++) moveWord(-1);
                             keyPerformed();
                             return true;
-                        case "d": // Delete selection
+                        case 'e':
+                            for (let i = 0; i < mode_repeat; i++) moveSpace();
+                            keyPerformed();
+                            return true;
+                        case '*':
+                            if (mode_visual_line) {
+                                applyVisualLinePrefix('*');
+                                keyPerformed();
+                                return true;
+                            }
+                            break;
+                        case '#':
+                            if (mode_visual_line) {
+                                applyVisualLinePrefix('#');
+                                keyPerformed();
+                                return true;
+                            }
+                            break;
+                        case 'd': // Delete selection
                             doVisualDelete(e);
                             return true;
-                        case "U":
+                        case 'U':
                             doVisualUpperCase(e, true);
                             return true;
-                        case "u":
+                        case 'u':
                             doVisualUpperCase(e, false);
                             return true;
-                        case "x": // Cut selection
+                        case 'x': // Cut selection
                             vim_clipboard = getVisualSelection();
                             if (vim_clipboard) {
                                 navigator.clipboard.writeText(vim_clipboard).catch(err => {
@@ -2963,7 +3407,7 @@
                             }
                             doVisualDelete(e);
                             return true;
-                        case "y": // Yank (copy)
+                        case 'y': // Yank (copy)
                             vim_clipboard = getVisualSelection();
                             if (vim_clipboard) {
                                 navigator.clipboard.writeText(vim_clipboard).catch(err => {
@@ -2985,6 +3429,14 @@
                     if (macro_recording && !macro_playing && e.key !== 'Shift' && e.key !== 'Control' && e.key !== 'Alt' && e.key !== 'Meta') {
                         macro_buffer.push({ key: e.key, ctrl: e.ctrlKey, alt: e.altKey, meta: e.metaKey, shift: e.shiftKey });
                     }
+
+                    if (!mode_insert && mode_vim && (e.ctrlKey || e.metaKey) && e.key === 'v') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        enterVisualBlockMode();
+                        return;
+                    }
+
                     const start = editorArea.selectionStart;
                     const end = editorArea.selectionEnd;
                     const value = editorArea.value;
@@ -3084,12 +3536,18 @@
                         e.stopPropagation();
                         syncFile();
 
-                        if (mode_insert && mode_vim) {
+                        if (block_insert_pending) {
+                            // Let vimKeys -> visualBlockKeys handle the block insert completion
+                            vimKeys(e);
+                        } else if (mode_insert && mode_vim) {
                             recordUndoState();
                             setVimMode(false);
                             editorArea.setSelectionRange(editorArea.selectionStart,editorArea.selectionStart);
                         } else if (mode_visual && mode_vim) {
                             exitVisualMode();
+                            setVimMode(false);
+                        } else if (mode_visual_block && mode_vim) {
+                            exitVisualBlockMode();
                             setVimMode(false);
                         } else {
                             if (macro_recording) {
@@ -3162,15 +3620,15 @@
                 function handleMarksKey(e) {
                     if (!showingMarks) return;
 
-                    if (e.key === "ArrowDown" || e.key === 'j') {
+                    if (e.key === 'ArrowDown' || e.key === 'j') {
                         marksIndex = (marksIndex + 1) % bookmarks.length;
                         renderMarksList();
                         e.preventDefault();
-                    } else if (e.key === "ArrowUp" || e.key === 'k') {
+                    } else if (e.key === 'ArrowUp' || e.key === 'k') {
                         marksIndex = (marksIndex - 1 + bookmarks.length) % bookmarks.length;
                         renderMarksList();
                         e.preventDefault();
-                    } else if (e.key === "d") {
+                    } else if (e.key === 'd') {
                         // Delete selected bookmark
                         bookmarks.splice(marksIndex, 1);
                         if (marksIndex >= bookmarks.length) marksIndex = bookmarks.length - 1;
@@ -3180,7 +3638,7 @@
                             renderMarksList();
                         }
                         e.preventDefault();
-                    } else if (e.key === "Enter") {
+                    } else if (e.key === 'Enter') {
                         let bm = bookmarks[marksIndex];
                         if (bm) {
                             expandToNode(bm.id);
@@ -3202,7 +3660,7 @@
                                 setVimMode(false); // Set mode to NORMAL
                             }
                         }
-                    } else if (e.key === "Escape") {
+                    } else if (e.key === 'Escape') {
                         closeMarksDialog();
                     }
                 }
@@ -3285,7 +3743,7 @@
                 }
 
                 // Remove all cursor mode classes first
-                editorArea.classList.remove('insert-mode', 'normal-mode', 'visual-mode');
+                editorArea.classList.remove('insert-mode', 'normal-mode', 'visual-mode', 'visual-block-mode');
                 
                 if (insertMode) {
                     mode_insert = true;
@@ -3295,6 +3753,9 @@
                     mode_insert = false;
                     if (mode_visual) {
                         exitVisualMode();
+                    }
+                    if (mode_visual_block) {
+                        exitVisualBlockMode();
                     }
                     modeEl.textContent = 'NORMAL';
                     editorArea.classList.add('normal-mode');
@@ -3668,18 +4129,65 @@
                 const end = ta.selectionEnd;
                 const value = ta.value;
 
-                // Get selection or current line if none
-                const sel = start !== end
-                    ? value.slice(start, end)
-                    : (() => {
-                        const ls = value.lastIndexOf("\n", start - 1) + 1;
-                        const le = value.indexOf("\n", start);
-                        return value.slice(ls, le === -1 ? value.length : le);
-                    })();
+                let selStart = start;
+                let selEnd = end;
+                let sel;
 
-                if (!/\|/.test(sel)) return; // no table detected
+                if (start !== end) {
+                    sel = value.slice(start, end);
+                } else {
+                    // Get current line
+                    const ls = value.lastIndexOf("\n", start - 1) + 1;
+                    const le = value.indexOf("\n", start);
+                    const currentLine = value.slice(ls, le === -1 ? value.length : le);
+                    const dividerPatternCur = /^\s*(?:[\|+]\s*-+\s*(?:[\|+]\s*-+\s*)*[\|+]|-+)\s*$/;
+                    if (!/\|/.test(currentLine) && !dividerPatternCur.test(currentLine)) return; // no table detected
 
-                const rawLines = sel.trim().split(/\r?\n/);
+                    // Walk up to find start of table
+                    let lineStart = ls;
+                    let pos = ls - 1;
+                    const dividerPatternWalk = /^\s*(?:[\|+]\s*-+\s*(?:[\|+]\s*-+\s*)*[\|+]|-+)\s*$/;
+                    while (pos >= 0) {
+                        const prevLineStart = value.lastIndexOf("\n", pos - 1) + 1;
+                        const prevLineEnd = value.indexOf("\n", pos);
+                        const prevLine = value.slice(prevLineStart, prevLineEnd === -1 ? pos + 1 : prevLineEnd);
+                        // Stop if line is empty (or just whitespace)
+                        if (/^\s*$/.test(prevLine)) break;
+                        // Table line contains | or is a divider
+                        if (/\|/.test(prevLine) || dividerPatternWalk.test(prevLine)) {
+                            lineStart = prevLineStart;
+                            pos = prevLineStart - 1;
+                        } else {
+                            break;
+                        }
+                    }
+
+                    // Walk down to find end of table
+                    let lineEnd = le === -1 ? value.length : le;
+                    let posDown = le === -1 ? value.length : le;
+                    while (posDown < value.length) {
+                        const nextLineStart = posDown + (value[posDown] === "\n" ? 1 : 0);
+                        if (nextLineStart > value.length) break;
+                        const nextLineEnd = value.indexOf("\n", nextLineStart);
+                        const nextLine = value.slice(nextLineStart, nextLineEnd === -1 ? value.length : nextLineEnd);
+                        if (/^\s*$/.test(nextLine)) break;
+                        if (/\|/.test(nextLine) || dividerPatternWalk.test(nextLine)) {
+                            lineEnd = nextLineEnd === -1 ? value.length : nextLineEnd;
+                            posDown = nextLineEnd === -1 ? value.length : nextLineEnd;
+                        } else {
+                            break;
+                        }
+                    }
+
+                    selStart = lineStart;
+                    selEnd = lineEnd;
+                    sel = value.slice(selStart, selEnd);
+                }
+
+                const dividerPatternCheck = /^\s*(?:[\|+]\s*-+\s*(?:[\|+]\s*-+\s*)*[\|+]|-+)\s*$/;
+                if (!/\|/.test(sel) && !dividerPatternCheck.test(sel)) return; // no table detected
+
+                const rawLines = sel.replace(/\r\n/g, "\n").split("\n");
 
                 // Matches:
                 //   | ---- | ---- |   (old markdown style)
@@ -3739,9 +4247,13 @@
                     finalRows.length = 0;
                     finalRows.push(...padded);
                 }
-                finalRows.push("");
 
-                ta.setRangeText(finalRows.join("\n"), start, end, "select");
+
+                // Preserve trailing newline if original selection ended at line boundary
+                const formatted = finalRows.join("\n");
+                const endsAtNewline = selEnd < value.length && value[selEnd] === "\n";
+                const result = endsAtNewline && !formatted.endsWith("\n") ? formatted + "\n" : formatted;
+                ta.setRangeText(result, selStart, selEnd, "select");
             }
 
             function renumberOrderedList() {
@@ -3884,6 +4396,77 @@
             }
 
         //---- Links -----------------------------------------------------------
+            function openLinkAtCursor() {
+                const cursorPos = editorArea.selectionStart;
+                if (cursorPos < 0) return false;
+                const link = findLinkAtCursor(editorArea.value, cursorPos);
+                if (!link) return false;
+
+                if (link.type === 'url') {
+                    window.open(link.target, '_blank');
+                    return true;
+                }
+
+                if (link.type === 'note') {
+                    const title = link.title.toLowerCase();
+                    let foundNode = null;
+                    (function walk(nodes) {
+                        for (const n of nodes) {
+                            if (n.title && n.title.toLowerCase() === title) {
+                                foundNode = n;
+                                return;
+                            }
+                            if (n.children && n.children.length) walk(n.children);
+                            if (foundNode) return;
+                        }
+                    })(treeData);
+                    if (foundNode) {
+                        expandToNode(foundNode.id);
+                        selectedId = foundNode.id;
+                        editing = false;
+                        closeLinksDialog();
+                        render();
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            function findLinkAtCursor(content, cursorPos) {
+                const markdownRegex = /\[([^\]]+)\](?:[ \t]*\r?\n[ \t]*|[ \t]*)(https?:\/\/\S+|file:\/\/\S+|_[^_]+_)/gi;
+                let match;
+                while ((match = markdownRegex.exec(content)) !== null) {
+                    if (cursorPos >= match.index && cursorPos <= match.index + match[0].length) {
+                        const target = match[2].trim();
+                        if (/^(https?|file):\/\//i.test(target)) {
+                            return { type: 'url', target };
+                        } else if (target.startsWith('_') && target.endsWith('_')) {
+                            return { type: 'note', title: target.slice(1, -1) };
+                        }
+                    }
+                }
+
+                const urlRegex = /\b(?:https?|file):\/\/[^\s]+/gi;
+                while ((match = urlRegex.exec(content)) !== null) {
+                    if (cursorPos >= match.index && cursorPos <= match.index + match[0].length) {
+                        return { type: 'url', target: match[0] };
+                    }
+                }
+
+                const noteRegex = /(?:^|\s|\()_([^_]|[^_].*?[^_])_(?=\s|[.,!?;:)]|$)/g;
+                while ((match = noteRegex.exec(content)) !== null) {
+                    const full = match[0];
+                    const start = match.index;
+                    const end = start + full.length;
+                    if (cursorPos >= start && cursorPos <= end) {
+                        return { type: 'note', title: match[1].trim() };
+                    }
+                }
+
+                return null;
+            }
+
             function openLinksDialog() {
                 showingLinks = true;
                 const info = findNodeAndParentById(selectedId);
@@ -4083,6 +4666,287 @@
                 closeThemePickerDialog();
             }
 
+        //---- Theme Editor -----------------------------------------------------
+            const TE_COLOR_FIELDS = [
+                ['bg','Background'],['fg','Foreground'],['muted','Muted'],['dim','Dim'],
+                ['accent','Accent'],['danger','Danger'],['sel-bg','Selection BG'],
+                ['border','Border'],['btn-bg','Button BG'],['btn-fg','Button FG'],
+                ['btn-border','Button Border'],['input-bg','Input BG'],['input-fg','Input FG'],
+                ['vim-cursor','Vim Cursor'],['insert-cursor','Insert Cursor']
+            ];
+
+            function buildThemeEditorColorGrid() {
+                const grid = document.getElementById('themeEditorColorGrid');
+                grid.innerHTML = '';
+                TE_COLOR_FIELDS.forEach(([key, label]) => {
+                    const lbl = document.createElement('label');
+                    lbl.style.cssText = 'display:flex;align-items:center;gap:4px;font-size:0.9em;';
+                    lbl.textContent = label + ': ';
+                    const inp = document.createElement('input');
+                    inp.type = 'color';
+                    inp.id = 'te_' + key;
+                    inp.style.cssText = 'vertical-align:middle;width:36px;height:22px;border:none;background:none;cursor:pointer;';
+                    lbl.appendChild(inp);
+                    grid.appendChild(lbl);
+                });
+            }
+
+            function openThemeEditorDialog() {
+                themeEditorIndex = 0;
+                themeEditorMode = 'list';
+                themeEditorOriginalIndex = -1;
+                themeEditorIsNew = false;
+                document.getElementById('themeEditorListView').style.display = 'flex';
+                document.getElementById('themeEditorEditView').style.display = 'none';
+                const dlg = document.getElementById('themeEditorDialog');
+                dlg.style.display = 'flex';
+                buildThemeEditorColorGrid();
+                renderThemeEditorList();
+                setupThemeEditorKeys();
+            }
+
+            function closeThemeEditorDialog() {
+                document.getElementById('themeEditorDialog').style.display = 'none';
+                if (themeEditorKeyHandler) {
+                    document.removeEventListener('keydown', themeEditorKeyHandler);
+                    themeEditorKeyHandler = null;
+                }
+            }
+
+            function setupThemeEditorKeys() {
+                if (themeEditorKeyHandler) {
+                    document.removeEventListener('keydown', themeEditorKeyHandler);
+                }
+                themeEditorKeyHandler = function(e) {
+                    const dlg = document.getElementById('themeEditorDialog');
+                    if (dlg.style.display !== 'flex') return;
+
+                    if (e.key === 'Escape') {
+                        e.preventDefault();
+                        if (themeEditorMode === 'edit') {
+                            cancelThemeEditorEdit();
+                        } else {
+                            closeThemeEditorDialog();
+                        }
+                        return;
+                    }
+
+                    if (themeEditorMode === 'list') {
+                        if (e.key === 'ArrowDown' || e.key === 'j') {
+                            e.preventDefault();
+                            if (themeEditorIndex < themes.length - 1) {
+                                themeEditorIndex++;
+                                renderThemeEditorList();
+                            }
+                        } else if (e.key === 'ArrowUp' || e.key === 'k') {
+                            e.preventDefault();
+                            if (themeEditorIndex > 0) {
+                                themeEditorIndex--;
+                                renderThemeEditorList();
+                            }
+                        } else if (e.key === 'Enter' || e.key === 'e') {
+                            e.preventDefault();
+                            openThemeEditorEdit(themeEditorIndex);
+                        } else if (e.key === 'd') {
+                            e.preventDefault();
+                            deleteThemeFromEditor(themeEditorIndex);
+                        } else if (e.key === 'a') {
+                            e.preventDefault();
+                            addThemeToEditor();
+                        }
+                    } else if (themeEditorMode === 'edit') {
+                        if (e.key === 'Enter' && e.ctrlKey) {
+                            e.preventDefault();
+                            saveThemeEditor();
+                        }
+                    }
+                };
+                document.addEventListener('keydown', themeEditorKeyHandler);
+            }
+
+            function renderThemeEditorList() {
+                const list = document.getElementById('themeEditorList');
+                list.innerHTML = '';
+                const activeName = currentTheme ? currentTheme.name : null;
+                themes.forEach((theme, index) => {
+                    const row = document.createElement('div');
+                    row.className = 'te-row';
+                    if (index === themeEditorIndex) row.classList.add('te-selected');
+                    if (activeName && theme.name === activeName) row.classList.add('te-active');
+
+                    const swatch = document.createElement('span');
+                    swatch.style.cssText = 'display:inline-block;width:14px;height:14px;border-radius:3px;border:1px solid var(--btn-border);flex-shrink:0;';
+                    swatch.style.background = theme.bg || '#000';
+                    const inner = document.createElement('span');
+                    inner.style.cssText = 'display:block;width:6px;height:6px;margin:3px;border-radius:1px;';
+                    inner.style.background = theme.accent || '#888';
+                    swatch.appendChild(inner);
+
+                    const activeDot = document.createElement('span');
+                    activeDot.className = 'te-active-dot';
+
+                    const name = document.createElement('span');
+                    name.className = 'te-name';
+                    name.textContent = theme.name;
+                    name.style.cssText = 'flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:0.9em;';
+
+                    const editBtn = document.createElement('button');
+                    editBtn.textContent = 'Edit';
+                    editBtn.style.cssText = 'padding:1px 6px;font-size:0.8em;flex-shrink:0;';
+                    editBtn.onclick = (e) => { e.stopPropagation(); openThemeEditorEdit(index); };
+
+                    const delBtn = document.createElement('button');
+                    delBtn.textContent = 'Del';
+                    delBtn.style.cssText = 'padding:1px 6px;font-size:0.8em;flex-shrink:0;color:var(--danger);';
+                    delBtn.onclick = (e) => { e.stopPropagation(); deleteThemeFromEditor(index); };
+
+                    row.appendChild(swatch);
+                    row.appendChild(activeDot);
+                    row.appendChild(name);
+                    row.appendChild(editBtn);
+                    row.appendChild(delBtn);
+                    row.addEventListener('click', () => { themeEditorIndex = index; renderThemeEditorList(); });
+                    list.appendChild(row);
+                });
+                setTimeout(() => {
+                    const sel = list.querySelector('.te-selected');
+                    if (sel) sel.scrollIntoView({ block: 'nearest' });
+                }, 0);
+            }
+
+            function openThemeEditorEdit(index) {
+                themeEditorOriginalIndex = index;
+                themeEditorIsNew = false;
+                themeEditorMode = 'edit';
+                document.getElementById('themeEditorListView').style.display = 'none';
+                document.getElementById('themeEditorEditView').style.display = 'flex';
+                document.getElementById('themeEditorEditTitle').textContent = 'Edit Theme';
+                populateThemeEditorForm(themes[index]);
+            }
+
+            function addThemeToEditor() {
+                themeEditorOriginalIndex = -1;
+                themeEditorIsNew = true;
+                themeEditorMode = 'edit';
+                document.getElementById('themeEditorListView').style.display = 'none';
+                document.getElementById('themeEditorEditView').style.display = 'flex';
+                document.getElementById('themeEditorEditTitle').textContent = 'New Theme';
+                populateThemeEditorForm({
+                    name: 'my-new-theme', bg: '#000000', fg: '#f5f5f5', muted: '#555555',
+                    dim: '#555555', accent: '#00d1b2', danger: '#ff5577', 'sel-bg': '#111827',
+                    border: '#222222', 'btn-bg': '#111827', 'btn-fg': '#f5f5f5',
+                    'btn-border': '#555555', 'input-bg': '#111827', 'input-fg': '#f5f5f5',
+                    'border-radius': '4px', 'pill-radius': '4px',
+                    'vim-cursor': '#00b894', 'insert-cursor': '#00d1b2'
+                });
+                document.getElementById('teName').focus();
+                document.getElementById('teName').select();
+            }
+
+            function deleteThemeFromEditor(index) {
+                if (themes.length <= 1) { showMessage("Can't delete last theme"); return; }
+                if (!confirm('Delete theme "' + themes[index].name + '"?')) return;
+                themes.splice(index, 1);
+                if (themeEditorIndex >= themes.length) themeEditorIndex = themes.length - 1;
+                renderThemeEditorList();
+            }
+
+            function populateThemeEditorForm(theme) {
+                document.getElementById('teName').value = theme.name || '';
+                TE_COLOR_FIELDS.forEach(([key]) => {
+                    const inp = document.getElementById('te_' + key);
+                    if (inp) inp.value = theme[key] || '#000000';
+                });
+                document.getElementById('te_border-radius').value = theme['border-radius'] || '4px';
+                document.getElementById('te_pill-radius').value = theme['pill-radius'] || '4px';
+                document.getElementById('te_grid').checked = !!theme.grid;
+                document.getElementById('te_grid-color').value = theme['grid-color'] || '#111111';
+            }
+
+            function collectThemeEditorForm() {
+                const theme = { name: document.getElementById('teName').value.trim() || 'unnamed-theme' };
+                TE_COLOR_FIELDS.forEach(([key]) => {
+                    theme[key] = document.getElementById('te_' + key).value;
+                });
+                theme['border-radius'] = document.getElementById('te_border-radius').value;
+                theme['pill-radius'] = document.getElementById('te_pill-radius').value;
+                if (document.getElementById('te_grid').checked) {
+                    theme.grid = true;
+                    theme['grid-color'] = document.getElementById('te_grid-color').value;
+                }
+                return theme;
+            }
+
+            function saveThemeEditor() {
+                const theme = collectThemeEditorForm();
+                if (themeEditorIsNew) {
+                    themes.push(theme);
+                    themeEditorIndex = themes.length - 1;
+                } else {
+                    themes[themeEditorOriginalIndex] = theme;
+                    themeEditorIndex = themeEditorOriginalIndex;
+                }
+                themeEditorMode = 'list';
+                document.getElementById('themeEditorListView').style.display = 'flex';
+                document.getElementById('themeEditorEditView').style.display = 'none';
+                renderThemeEditorList();
+                showMessage("Theme saved: " + theme.name);
+            }
+
+            function cancelThemeEditorEdit() {
+                themeEditorMode = 'list';
+                document.getElementById('themeEditorListView').style.display = 'flex';
+                document.getElementById('themeEditorEditView').style.display = 'none';
+                renderThemeEditorList();
+            }
+
+            function themeEditorPreview() {
+                const theme = collectThemeEditorForm();
+                applyThemeColors(theme);
+                currentTheme = theme;
+            }
+
+            document.getElementById('themeEditorAddBtn').addEventListener('click', addThemeToEditor);
+            document.getElementById('themeEditorCloseBtn').addEventListener('click', closeThemeEditorDialog);
+            document.getElementById('themeEditorSaveBtn').addEventListener('click', saveThemeEditor);
+            document.getElementById('themeEditorCancelBtn').addEventListener('click', cancelThemeEditorEdit);
+            document.getElementById('themeEditorPreviewBtn').addEventListener('click', themeEditorPreview);
+            document.getElementById('themeEditorExportBtn').addEventListener('click', () => {
+                const blob = new Blob([JSON.stringify(themes, null, 2)], { type: 'application/json' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'scribboleth-themes.json';
+                a.click();
+                URL.revokeObjectURL(a.href);
+                showMessage("Themes exported");
+            });
+            document.getElementById('themeEditorImportBtn').addEventListener('click', () => {
+                document.getElementById('themeEditorFilePicker').click();
+            });
+            document.getElementById('themeEditorFilePicker').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                file.text().then(text => {
+                    try {
+                        const imported = JSON.parse(text);
+                        if (!Array.isArray(imported)) throw new Error("Expected JSON array of themes");
+                        imported.forEach(t => {
+                            if (!t.name) throw new Error("Each theme must have a name");
+                        });
+                        if (confirm('Replace all ' + themes.length + ' themes with ' + imported.length + ' imported themes?')) {
+                            themes.length = 0;
+                            themes.push(...imported);
+                            themeEditorIndex = 0;
+                            renderThemeEditorList();
+                            showMessage("Imported " + imported.length + " themes");
+                        }
+                    } catch (err) {
+                        alert("Import failed: " + err.message);
+                    }
+                });
+                e.target.value = '';
+            });
+
             let saveAsKeyHandler = null;
 
             function openSaveAsDialog(defaultTitle = document.title, defaultFile = fileName) {
@@ -4170,6 +5034,107 @@
                 showingMarks = false;
             }
 
+            function collectAllTags() {
+                const tagSet = new Set();
+                (function walk(nodes) {
+                    for (const n of nodes) {
+                        const content = n.content || '';
+                        const matches = content.match(/#[\w-]+/g) || [];
+                        for (const t of matches) {
+                            if (/^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(t)) continue;
+                            tagSet.add(t.toLowerCase());
+                        }
+                        if (n.children && n.children.length) walk(n.children);
+                    }
+                })(treeData);
+                return [...tagSet].sort();
+            }
+
+            function openTagsDialog() {
+                if (readOnly) return;
+                tagsList = collectAllTags();
+                if (tagsList.length === 0) {
+                    showMessage('No tags found');
+                    return;
+                }
+                tagsIndex = 0;
+                showingTags = true;
+                document.getElementById('tagsDialog').style.display = 'block';
+                renderTagsList();
+            }
+
+            function closeTagsDialog() {
+                showingTags = false;
+                document.getElementById('tagsDialog').style.display = 'none';
+                editorArea.focus();
+            }
+
+            function renderTagsList() {
+                const listEl = document.getElementById('tagsList');
+                listEl.innerHTML = '';
+                tagsList.forEach((tag, i) => {
+                    const div = document.createElement('div');
+                    div.textContent = tag;
+                    if (i === tagsIndex) {
+                        div.classList.add('selected');
+                        requestAnimationFrame(() => div.scrollIntoView({ block: "nearest" }));
+                    }
+                    div.addEventListener('click', () => {
+                        tagsIndex = i;
+                        insertSelectedTag();
+                    });
+                    listEl.appendChild(div);
+                });
+            }
+
+            function insertSelectedTag() {
+                if (tagsIndex < 0 || tagsIndex >= tagsList.length) return;
+                const tag = tagsList[tagsIndex];
+                const tagText = tag + ' ';
+                const editorArea = document.getElementById('editorArea');
+                if (editing) {
+                    const start = editorArea.selectionStart;
+                    const end = editorArea.selectionEnd;
+                    editorArea.setRangeText(tagText, start, end, "end");
+                    syncFile();
+                } else {
+                    editorArea.removeAttribute('readonly');
+                    editorArea.setRangeText(tagText, editorArea.value.length, editorArea.value.length, "end");
+                    syncFile();
+                    editorArea.setAttribute('readonly', 'readonly');
+                    editing = true;
+                    render();
+                    editorArea.focus();
+                    editorArea.setSelectionRange(editorArea.value.length, editorArea.value.length);
+                    scrollToCursor();
+                    setVimMode(false);
+                }
+                closeTagsDialog();
+            }
+
+            function handleTagsKey(e) {
+                if (!showingTags) return;
+                if (e.key === 'ArrowDown' || e.key === 'j') {
+                    tagsIndex = (tagsIndex + 1) % tagsList.length;
+                    renderTagsList();
+                    e.preventDefault();
+                    e.stopPropagation();
+                } else if (e.key === 'ArrowUp' || e.key === 'k') {
+                    tagsIndex = (tagsIndex - 1 + tagsList.length) % tagsList.length;
+                    renderTagsList();
+                    e.preventDefault();
+                    e.stopPropagation();
+                } else if (e.key === 'Enter') {
+                    insertSelectedTag();
+                    e.preventDefault();
+                    e.stopPropagation();
+                } else if (e.key === 'Escape') {
+                    closeTagsDialog();
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            }
+
             function closeDialogs() {
                 closeSearch();
                 closeHelp();
@@ -4181,11 +5146,7 @@
                 closeHistoryDialog();
                 closeUndoDialog();
                 closeVersionDialog();
-                if (peekActive) {
-                    selectedId = peekSavedId;
-                    closePeekSearch();
-                    render();
-                }
+                closeThemeEditorDialog();
             }
 
         //---- Finding and Replacing -------------------------------------------
@@ -4418,6 +5379,179 @@
                         }
                     }
                 }
+                }
+
+        //---- Visual Block Mode Helpers ----------------------------------------
+            let _charWidthCache = 0;
+            function getCharWidth() {
+                if (_charWidthCache > 0) return _charWidthCache;
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const computedStyle = window.getComputedStyle(editorArea);
+                ctx.font = computedStyle.font;
+                _charWidthCache = ctx.measureText('M').width;
+                return _charWidthCache;
+            }
+
+            function posToRowCol(pos) {
+                const text = editorArea.value;
+                const before = text.substring(0, pos);
+                const lines = before.split('\n');
+                return { row: lines.length - 1, col: lines[lines.length - 1].length };
+            }
+
+            function rowColToPos(row, col) {
+                const lines = editorArea.value.split('\n');
+                let pos = 0;
+                for (let i = 0; i < row && i < lines.length; i++) {
+                    pos += lines[i].length + 1;
+                }
+                if (row < lines.length) {
+                    pos += Math.min(col, lines[row].length);
+                }
+                return pos;
+            }
+
+            function computeBlockRegion() {
+                const startPos = Math.min(visual_block_anchor, editorArea.selectionStart);
+                const endPos = Math.max(visual_block_anchor, editorArea.selectionStart);
+                const startRC = posToRowCol(startPos);
+                const endRC = posToRowCol(endPos);
+                return {
+                    topRow: Math.min(startRC.row, endRC.row),
+                    bottomRow: Math.max(startRC.row, endRC.row),
+                    leftCol: Math.min(startRC.col, endRC.col),
+                    rightCol: Math.max(startRC.col, endRC.col)
+                };
+            }
+
+            function getRowsInBlock() {
+                const block = computeBlockRegion();
+                const lines = editorArea.value.split('\n');
+                const rows = [];
+                for (let r = block.topRow; r <= block.bottomRow; r++) {
+                    if (r >= lines.length) break;
+                    const lineLen = lines[r].length;
+                    rows.push({
+                        row: r,
+                        startCol: block.leftCol,
+                        endCol: Math.min(block.rightCol, lineLen),
+                        lineLength: lineLen
+                    });
+                }
+                return rows;
+            }
+
+            function getBlockText() {
+                const rows = getRowsInBlock();
+                const lines = editorArea.value.split('\n');
+                return rows.map(r => {
+                    const line = lines[r.row] || '';
+                    return line.substring(r.startCol, r.endCol);
+                }).join('\n');
+            }
+
+            function updateBlockOverlay() {
+                clearBlockOverlay();
+                if (!mode_visual_block) return;
+
+                const overlay = document.getElementById('blockOverlay');
+                const rows = getRowsInBlock();
+                const computedStyle = window.getComputedStyle(editorArea);
+                const fontSize = parseFloat(computedStyle.fontSize);
+                const lineHeight = fontSize * 1.5;
+                const charWidth = getCharWidth();
+                const paddingTop = parseFloat(computedStyle.paddingTop) || 12;
+                const paddingLeft = parseFloat(computedStyle.paddingLeft) || 12;
+                const scrollTop = editorArea.scrollTop;
+                const scrollLeft = editorArea.scrollLeft;
+
+                rows.forEach(row => {
+                    if (row.endCol <= row.startCol) return;
+                    const hl = document.createElement('div');
+                    hl.className = 'block-hl';
+                    const top = (row.row * lineHeight + paddingTop) - scrollTop;
+                    const left = (row.startCol * charWidth + paddingLeft) - scrollLeft;
+                    const width = (row.endCol - row.startCol) * charWidth;
+                    hl.style.top = top + 'px';
+                    hl.style.left = left + 'px';
+                    hl.style.width = width + 'px';
+                    hl.style.height = lineHeight + 'px';
+                    overlay.appendChild(hl);
+                });
+            }
+
+            function clearBlockOverlay() {
+                const overlay = document.getElementById('blockOverlay');
+                if (overlay) overlay.innerHTML = '';
+            }
+
+            function enterVisualBlockMode() {
+                editorArea.classList.remove('insert-mode', 'normal-mode', 'visual-mode');
+                mode_visual = false;
+                mode_visual_line = false;
+                mode_visual_block = true;
+                visual_block_anchor = editorArea.selectionStart;
+                modeEl.textContent = 'VISUAL BLOCK';
+                editorArea.classList.add('visual-block-mode');
+                updateBlockOverlay();
+            }
+
+            function exitVisualBlockMode(positionCursor = true) {
+                editorArea.classList.remove('insert-mode', 'normal-mode', 'visual-mode', 'visual-block-mode');
+                mode_visual_block = false;
+                clearBlockOverlay();
+                if (positionCursor) {
+                    let cursorPos = Math.max(visual_block_anchor, editorArea.selectionStart);
+                    editorArea.selectionStart = editorArea.selectionEnd = cursorPos;
+                }
+                visual_block_anchor = 0;
+                modeEl.textContent = 'NORMAL';
+                editorArea.classList.add('normal-mode');
+            }
+
+            function doVisualBlockDelete(e) {
+                e.stopPropagation();
+                recordUndoState();
+                const rows = getRowsInBlock();
+                const text = editorArea.value;
+                let offset = 0;
+
+                for (let i = rows.length - 1; i >= 0; i--) {
+                    const r = rows[i];
+                    const lineStart = rowColToPos(r.row, 0);
+                    const delStart = lineStart + r.startCol;
+                    const delEnd = lineStart + r.endCol;
+                    if (delEnd > delStart) {
+                        editorArea.setRangeText('', delStart, delEnd, 'start');
+                    }
+                }
+
+                const block = computeBlockRegion();
+                editorArea.selectionStart = editorArea.selectionEnd = rowColToPos(block.topRow, block.leftCol);
+                syncFile();
+                exitVisualBlockMode(false);
+            }
+
+            function doVisualBlockUpperCase(e, toUpperCase) {
+                recordUndoState();
+                const rows = getRowsInBlock();
+                const text = editorArea.value;
+
+                for (let i = rows.length - 1; i >= 0; i--) {
+                    const r = rows[i];
+                    const lineStart = rowColToPos(r.row, 0);
+                    const segStart = lineStart + r.startCol;
+                    const segEnd = lineStart + r.endCol;
+                    if (segEnd > segStart) {
+                        const seg = editorArea.value.substring(segStart, segEnd);
+                        const converted = toUpperCase ? seg.toUpperCase() : seg.toLowerCase();
+                        editorArea.setRangeText(converted, segStart, segEnd, 'start');
+                    }
+                }
+
+                syncFile();
+                exitVisualBlockMode();
             }
 
         //---- Visual Mode Helpers ---------------------------------------------
@@ -4586,6 +5720,47 @@
                 exitVisualMode();
             }
 
+            function applyVisualLinePrefix(type) {
+                let start = editorArea.selectionStart;
+                let end = editorArea.selectionEnd;
+
+                if (end < start) {
+                    [start, end] = [end, start];
+                }
+
+                let trailingNewline = false;
+                if (end > start && editorArea.value[end - 1] === '\n') {
+                    trailingNewline = true;
+                    end -= 1;
+                }
+
+                const lines = editorArea.value.slice(start, end).split('\n');
+                let lineNumber = 1;
+
+                const transformed = lines.map(line => {
+                    if (type === '*') {
+                        return /^\* /.test(line) ? line : '* ' + line;
+                    }
+
+                    let newLine;
+                    if (/^\d+\.\s+/.test(line)) {
+                        newLine = line.replace(/^\d+\.\s+/, `${lineNumber}. `);
+                    } else {
+                        newLine = `${lineNumber}. ${line}`;
+                    }
+                    lineNumber++;
+                    return newLine;
+                });
+
+                const result = transformed.join('\n') + (trailingNewline ? '\n' : '');
+
+                recordUndoState();
+                editorArea.setRangeText(result, start, end + (trailingNewline ? 1 : 0), 'start');
+                editorArea.selectionStart = editorArea.selectionEnd = start;
+                syncFile();
+                exitVisualMode(false);
+            }
+
         //---- Theme Methods ---------------------------------------------------
             function applyThemeColors(colors) {
                 if (!colors || typeof colors !== 'object') return;
@@ -4624,6 +5799,8 @@
         //---- Search ----------------------------------------------------------
             function openSearch() {
                 searchActive = true;
+                collectResultsMode = false;
+                collectResultsAsChild = false;
                 searchDialog.style.display = 'flex';
                 searchInput.value = '';
                 searchInput.focus();
@@ -4639,30 +5816,37 @@
                 searchDialog.style.display = 'none';
             }
 
-            function openPeekSearch() {
-                peekActive = true;
-                peekSavedId = selectedId;
-                const treeEl = document.getElementById('tree');
-                const treeRect = treeEl.getBoundingClientRect();
-                searchDialog.style.top = treeRect.top + 'px';
-                searchDialog.style.left = treeRect.left + 'px';
-                searchDialog.style.width = treeRect.width + 'px';
-                searchDialog.style.height = treeRect.height + 'px';
-                searchDialog.style.maxHeight = treeRect.height + 'px';
-                searchDialog.style.transform = 'none';
-                searchDialog.style.maxWidth = 'none';
-                openSearch();
-            }
-
-            function closePeekSearch() {
-                peekActive = false;
-                searchDialog.style.top = '';
-                searchDialog.style.left = '';
-                searchDialog.style.width = '';
-                searchDialog.style.height = '';
-                searchDialog.style.maxHeight = '';
-                searchDialog.style.transform = '';
-                searchDialog.style.maxWidth = '';
+            function createSearchResultsNode() {
+                if (!searchMatches.length || readOnly) return;
+                const query = searchInput.value.trim();
+                const title = query ? 'Search Results: ' + query : 'Search Results';
+                const node = {
+                    id: makeId(),
+                    title: title,
+                    content: searchMatches.map(n => '_' + (n.title || '(untitled)') + '_').join('\n'),
+                    children: [],
+                    expanded: true
+                };
+                if (collectResultsAsChild) {
+                    const info = findNodeAndParentById(selectedId);
+                    if (!info) {
+                        treeData.push(node);
+                    } else {
+                        info.node.expanded = true;
+                        info.node.children.push(node);
+                    }
+                } else {
+                    treeData.push(node);
+                }
+                selectedId = node.id;
+                editing = false;
+                mode_insert = false;
+                mode_visual = false;
+                mode_visual_block = false;
+                modeEl.textContent = 'TREE';
+                render();
+                closeSearch();
+                showMessage('Created ' + title);
             }
 
             function searchTree(query) {
@@ -4738,7 +5922,7 @@
                     return;
                 }
 
-                const words = query.toLowerCase().split(',').map(w => w.trim()).filter(w => w);
+                const words = query.toLowerCase().split(/\s+/).map(w => w.trim()).filter(w => w);
                 if (words.length === 0) {
                     renderSearchList();
                     return;
@@ -4809,6 +5993,25 @@
                 matchingTags = [];
                 if (!tag) {
                     tagSearchPhase = 'tags';
+                    // Show ALL available tags, not an empty list
+                    const allTagSet = {};
+                    (function walk(nodes) {
+                        for (const n of nodes) {
+                            const nodeContent = n.content || '';
+                            const matches = nodeContent.match(/#[\w-]+/g) || [];
+                            for (const t of matches) {
+                                if (/^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(t)) continue;
+                                allTagSet[t.slice(1).toLowerCase()] = true;
+                            }
+                            if (n.children && n.children.length) {
+                                walk(n.children);
+                            }
+                        }
+                    })(treeData);
+                    for (const t of Object.keys(allTagSet)) {
+                        matchingTags.push('#' + t);
+                    }
+                    matchingTags.sort();
                     renderSearchList();
                     return;
                 }
@@ -4822,6 +6025,7 @@
                         const nodeContent = n.content || '';
                         const matches = nodeContent.match(/#[\w-]+/g) || [];
                         for (const t of matches) {
+                            if (/^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(t)) continue;
                             const tagVal = t.slice(1).toLowerCase();
                             if (tagVal.includes(tagLower)) {
                                 allTagCounts[tagVal] = (allTagCounts[tagVal] || 0) + 1;
@@ -4898,9 +6102,12 @@
                     }
                     item.addEventListener('click', () => {
                         if (searchMatches.length > 0) {
+                            if (collectResultsMode) {
+                                createSearchResultsNode();
+                                return;
+                            }
                             selectSearchResult(i);
                             closeSearch();
-                            if (peekActive) closePeekSearch();
                             const selInfo = findNodeAndParentById(selectedId);
                             if (selInfo && !isFolder(selInfo.node)) {
                                 editing = true;
@@ -4952,18 +6159,10 @@
                     const max = tagSearchPhase === 'tags' ? matchingTags.length - 1 : searchMatches.length - 1;
                     searchIndex = Math.min(searchIndex + 1, max);
                     renderSearchList();
-                    if (peekActive && tagSearchPhase !== 'tags' && searchMatches.length > 0) {
-                        const n = searchMatches[searchIndex];
-                        if (n) { selectedId = n.id; expandToNode(n.id); render(); }
-                    }
                     e.preventDefault();
                 } else if (e.key === 'ArrowUp') {
                     searchIndex = Math.max(searchIndex - 1, 0);
                     renderSearchList();
-                    if (peekActive && tagSearchPhase !== 'tags' && searchMatches.length > 0) {
-                        const n = searchMatches[searchIndex];
-                        if (n) { selectedId = n.id; expandToNode(n.id); render(); }
-                    }
                     e.preventDefault();
                 } else if (e.key === 'Backspace' && tagSearchPhase === 'notes') {
                     const query = searchInput.value;
@@ -4996,10 +6195,12 @@
                             searchTreeTags(selectedTag.substring(1));
                         }
                         e.preventDefault();
+                    } else if (collectResultsMode && searchMatches.length > 0) {
+                        createSearchResultsNode();
+                        e.preventDefault();
                     } else if (searchMatches.length > 0) {
                         selectSearchResult(searchIndex);
                         closeSearch();
-                        if (peekActive) closePeekSearch();
                         const selInfo = findNodeAndParentById(selectedId);
                         if (selInfo && !isFolder(selInfo.node)) {
                             if (!readOnly) {
@@ -5018,13 +6219,12 @@
                         }
                     }
                 } else if (e.key === 'Escape') {
-                    if (peekActive) {
-                        selectedId = peekSavedId;
-                        render();
-                        closeSearch();
-                        closePeekSearch();
-                    } else {
-                        closeSearch();
+                    closeSearch();
+                    if (editing && mode_vim && !mode_insert) {
+                        editorArea.focus();
+                        editorArea.classList.remove('normal-mode');
+                        void editorArea.offsetWidth;
+                        editorArea.classList.add('normal-mode');
                     }
                 }
             });
@@ -5284,8 +6484,15 @@
                     // Save current theme
                     const latestTheme = currentTheme ? JSON.stringify(currentTheme, null, 4) : "null";
                     htmlContent = htmlContent.replace(
-                        /let\s+currentTheme\s*=\s*(null|\[[\s\S]*?\]);/,
+                        /let\s+currentTheme\s*=\s*(null|\{[\s\S]*?\});/,
                         "let currentTheme = " + latestTheme + ";"
+                    );
+
+                    // Save themes list
+                    const themesJson = themes.map(t => "                " + JSON.stringify(t)).join(",\n");
+                    htmlContent = htmlContent.replace(
+                        /let\s+themes\s*=\s*\[[\s\S]*?\];/,
+                        "let themes = [\n" + themesJson + "\n            ];"
                     );
 
                     // Update CSS variables with current theme
@@ -5468,7 +6675,7 @@
                         return;
                     }
 
-                    if (e.ctrlKey && e.key === ";") {
+                    if ((e.ctrlKey || e.metaKey) && e.key === ";") {
                         e.preventDefault();
                         formatMarkdownTable();
                     }
@@ -5479,6 +6686,18 @@
                         return;
                     }
 
+                    if ((e.ctrlKey || e.metaKey) && e.key === "3") {
+                        e.preventDefault();
+                        openTagsDialog();
+                        return;
+                    }
+
+                    return;
+                }
+
+                if ((e.ctrlKey || e.metaKey) && e.key === "3" && !dialogOpen()) {
+                    e.preventDefault();
+                    openTagsDialog();
                     return;
                 }
 
@@ -5523,7 +6742,9 @@
                 }
 
                 if (e.key === '\\' && !editing && !dialogOpen()) {
-                    openPeekSearch();
+                    openSearch();
+                    collectResultsMode = true;
+                    collectResultsAsChild = false;
                     e.preventDefault();
                     return;
                 }
@@ -5622,6 +6843,13 @@
                         openHistoryDialog();
                         e.preventDefault();
                         return;
+                    case '5':
+                        if (!editing && !dialogOpen()) {
+                            openThemeEditorDialog();
+                            e.preventDefault();
+                            return;
+                        }
+                        break;
                     default: did = false; break;
                 }
                 if (did) { e.preventDefault(); render(); }
@@ -5961,6 +7189,7 @@
             window.addEventListener('keydown', handleHistoryKey, { capture: true });
             window.addEventListener('keydown', handleLinksKey, { capture: true });
             window.addEventListener('keydown', handleMarksKey, { capture: true });
+            window.addEventListener('keydown', handleTagsKey, { capture: true });
             window.addEventListener('keydown', handleUndoKey, { capture: true });
 
         //---- Init ------------------------------------------------------------
@@ -6020,6 +7249,19 @@
                         } catch (e) {
                             console.warn('Failed to parse currentTheme, using default');
                             currentTheme = null;
+                        }
+                    }
+
+                    // Extract and restore themes list
+                    const themesMatch = htmlContent.match(/let\s+themes\s*=\s*(\[[\s\S]*?\]);/s);
+                    if (themesMatch) {
+                        try {
+                            const parsed = JSON.parse(themesMatch[1]);
+                            if (Array.isArray(parsed) && parsed.length > 0) {
+                                themes = parsed;
+                            }
+                        } catch (e) {
+                            console.warn('Failed to parse themes, using defaults');
                         }
                     }
                 } catch (e) {
